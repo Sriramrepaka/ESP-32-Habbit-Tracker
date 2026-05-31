@@ -168,4 +168,5 @@ void save_canvas_to_bmp(const char *filename) {
 
     fclose(f);
     ESP_LOGI(TAG, "Canvas successfully saved to %s", filename);
+    //testing git
 }
