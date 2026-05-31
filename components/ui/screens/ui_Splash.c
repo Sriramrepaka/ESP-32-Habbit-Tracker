@@ -43,12 +43,12 @@ void ui_Splash_screen_init(void)
     lv_obj_set_x(ui_Smart_Gadget, 0);
     lv_obj_set_y(ui_Smart_Gadget, 50);
     lv_obj_set_align(ui_Smart_Gadget, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Smart_Gadget, "Bat Device");
+    lv_label_set_text(ui_Smart_Gadget, "Device");
     lv_obj_set_style_text_color(ui_Smart_Gadget, lv_color_hex(0x000746), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Smart_Gadget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SLS_Logo = lv_img_create(ui_Splash);
-    lv_img_set_src(ui_SLS_Logo, &ui_img_1558168330);
+    lv_img_set_src(ui_SLS_Logo, &ui_img_check_png);
     lv_obj_set_width(ui_SLS_Logo, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_SLS_Logo, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_SLS_Logo, 0);

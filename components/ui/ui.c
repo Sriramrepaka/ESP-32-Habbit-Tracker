@@ -243,12 +243,12 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_Splash_screen_init();
     ui_Clock_screen_init();
-    ui_Chat_screen_init();
     ui_Weather_screen_init();
     ui_Alarm_screen_init();
     ui_Settings_screen_init();
     ui_Wifimenu_screen_init();
     ui_Sketchpad_screen_init();
+    ui_SettingsNotes_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
 
@@ -260,10 +260,10 @@ void ui_destroy(void)
 {
     ui_Splash_screen_destroy();
     ui_Clock_screen_destroy();
-    ui_Chat_screen_destroy();
     ui_Weather_screen_destroy();
     ui_Alarm_screen_destroy();
     ui_Settings_screen_destroy();
     ui_Wifimenu_screen_destroy();
     ui_Sketchpad_screen_destroy();
+    ui_SettingsNotes_screen_destroy();
 }

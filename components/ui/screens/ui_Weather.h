@@ -26,7 +26,6 @@ extern lv_obj_t * ui_w3;
 extern lv_obj_t * ui_W1_Num;
 extern lv_obj_t * ui_W2_Num;
 extern lv_obj_t * ui_W3_Num;
-extern lv_obj_t * ui_Scrolldots4;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

@@ -24,12 +24,12 @@ extern "C" {
 
 #include "screens/ui_Splash.h"
 #include "screens/ui_Clock.h"
-#include "screens/ui_Chat.h"
 #include "screens/ui_Weather.h"
 #include "screens/ui_Alarm.h"
 #include "screens/ui_Settings.h"
 #include "screens/ui_Wifimenu.h"
 #include "screens/ui_Sketchpad.h"
+#include "screens/ui_SettingsNotes.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -45,19 +45,20 @@ void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_1558168330);    // assets/batman_logo (1).png
+LV_IMG_DECLARE(ui_img_check_png);    // assets/check.png
 LV_IMG_DECLARE(ui_img_pattern_png);    // assets/pattern.png
 LV_IMG_DECLARE(ui_img_clock_min_png);    // assets/clock_min.png
 LV_IMG_DECLARE(ui_img_clock_hour_png);    // assets/clock_hour.png
 LV_IMG_DECLARE(ui_img_clock_sec_png);    // assets/clock_sec.png
-LV_IMG_DECLARE(ui_img_chatbox_png);    // assets/chatbox.png
-LV_IMG_DECLARE(ui_img_chatbox2_png);    // assets/chatbox2.png
 LV_IMG_DECLARE(ui_img_cloud_png);    // assets/cloud.png
 LV_IMG_DECLARE(ui_img_weather_1_png);    // assets/weather_1.png
 LV_IMG_DECLARE(ui_img_weather_2_png);    // assets/weather_2.png
 LV_IMG_DECLARE(ui_img_weather_3_png);    // assets/weather_3.png
+LV_IMG_DECLARE(ui_img_1880035939);    // assets/sticky-note.png
 LV_IMG_DECLARE(ui_img_1741635428);    // assets/wi-fi_24.png
 LV_IMG_DECLARE(ui_img_refresh_64_png);    // assets/refresh_64.png
+LV_IMG_DECLARE(ui_img_note_png);    // assets/note.png
+LV_IMG_DECLARE(ui_img_write_black_png);    // assets/write_black.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Number);

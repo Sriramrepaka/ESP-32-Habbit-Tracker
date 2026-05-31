@@ -108,3 +108,64 @@ void app_sketch_init(void) {
 void app_sketch_clear(void) {
     if(canvas_obj) lv_canvas_fill_bg(canvas_obj, lv_color_white(), LV_OPA_COVER);
 }
+
+void save_canvas_to_bmp(const char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file %s for writing! Is SD card mounted?", filename);
+        return;
+    }
+
+    // BMP formats require rows to be padded to multiples of 4 bytes.
+    // Our CANVAS_STRIDE is ((218 + 7) / 8) = 28 bytes. 28 is already divisible by 4!
+    uint32_t row_size = CANVAS_STRIDE; 
+    uint32_t image_size = row_size * CANVAS_HEIGHT;
+    uint32_t file_size = 54 + 8 + image_size; // 54 byte header + 8 byte color palette + pixels
+
+    // 1. Standard 14-byte BMP File Header
+    uint8_t fileHeader[14] = {
+        'B', 'M',           // Magic identifier
+        file_size, file_size >> 8, file_size >> 16, file_size >> 24, // File size
+        0, 0, 0, 0,         // Reserved
+        62, 0, 0, 0         // Offset to image data (54 header + 8 palette)
+    };
+
+    // 2. 40-byte BMP Info Header (DIB Header)
+    uint8_t infoHeader[40] = {
+        40, 0, 0, 0,        // Header size
+        CANVAS_WIDTH, CANVAS_WIDTH >> 8, 0, 0,  // Width (218)
+        CANVAS_HEIGHT, CANVAS_HEIGHT >> 8, 0, 0,// Height (291)
+        1, 0,               // Planes (Must be 1)
+        1, 0,               // Bits per pixel (1-bit monochrome)
+        0, 0, 0, 0,         // Compression (0 = None)
+        image_size, image_size >> 8, image_size >> 16, image_size >> 24, // Image size
+        0, 0, 0, 0,         // X pixels per meter (unspecified)
+        0, 0, 0, 0,         // Y pixels per meter (unspecified)
+        2, 0, 0, 0,         // Colors in palette (2 colors)
+        0, 0, 0, 0          // Important colors
+    };
+
+    // 3. 8-byte Color Palette (Defines what '0' and '1' mean in RGB)
+    // In BMPs, rows are written bottom-to-top, and 0 is typically black.
+    // If your screen background is black (0x00), we want 0 to map to Black, 1 to White.
+    uint8_t palette[8] = {
+        0,   0,   0,   0,   // Index 0: Black (Blue, Green, Red, Reserved)
+        255, 255, 255, 0    // Index 1: White (Blue, Green, Red, Reserved)
+    };
+
+    // Write headers to SD card
+    fwrite(fileHeader, 1, 14, f);
+    fwrite(infoHeader, 1, 40, f);
+    fwrite(palette, 1, 8, f);
+
+    // 4. Write Pixel Data
+    // Crucial: BMP files store images from BOTTOM to TOP. 
+    // We must read our canvas_buffer from the last row up to the first row.
+    for (int y = CANVAS_HEIGHT - 1; y >= 0; y--) {
+        uint8_t *row_ptr = canvas_buffer + (y * CANVAS_STRIDE);
+        fwrite(row_ptr, 1, row_size, f);
+    }
+
+    fclose(f);
+    ESP_LOGI(TAG, "Canvas successfully saved to %s", filename);
+}

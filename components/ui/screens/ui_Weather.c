@@ -17,23 +17,14 @@ lv_obj_t * ui_w3 = NULL;
 lv_obj_t * ui_W1_Num = NULL;
 lv_obj_t * ui_W2_Num = NULL;
 lv_obj_t * ui_W3_Num = NULL;
-lv_obj_t * ui_Scrolldots4 = NULL;
 // event funtions
 void ui_event_Weather(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_SCREEN_LOADED) {
-        upanim_Animation(ui_Cloud, 100);
-        upanim_Animation(ui_Pary_Cloud, 200);
-        upanim_Animation(ui_Celsius, 300);
-        upanim_Animation(ui_New_York, 400);
-        upanim_Animation(ui_Weather_Icons, 300);
-        scrolldot_Animation(ui_Scrolldots4, 0);
-    }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Chat, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_Chat_screen_init);
+        _ui_screen_change(&ui_Clock, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_Clock_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
@@ -152,30 +143,6 @@ void ui_Weather_screen_init(void)
     lv_obj_set_align(ui_W3_Num, LV_ALIGN_TOP_RIGHT);
     lv_label_set_text(ui_W3_Num, "18%");
 
-    ui_Scrolldots4 = ui_Scrolldots_create(ui_Weather);
-    lv_obj_set_x(ui_Scrolldots4, 0);
-    lv_obj_set_y(ui_Scrolldots4, -8);
-
-    lv_obj_set_width(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D1), 4);
-    lv_obj_set_height(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D1), 4);
-
-    lv_obj_set_x(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D2), 10);
-    lv_obj_set_y(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D2), 0);
-
-    lv_obj_set_x(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D3), 20);
-    lv_obj_set_y(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D3), 0);
-
-    lv_obj_set_x(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D4), 30);
-    lv_obj_set_y(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D4), 0);
-
-    lv_obj_set_width(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), 8);
-    lv_obj_set_height(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), 8);
-    lv_obj_set_x(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), 41);
-    lv_obj_set_y(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), 0);
-    lv_obj_set_style_bg_color(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), lv_color_hex(0x101C52),
-                              LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_comp_get_child(ui_Scrolldots4, UI_COMP_SCROLLDOTS_D5), 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     lv_obj_add_event_cb(ui_Weather, ui_event_Weather, LV_EVENT_ALL, NULL);
 
 }
@@ -197,6 +164,5 @@ void ui_Weather_screen_destroy(void)
     ui_W1_Num = NULL;
     ui_W2_Num = NULL;
     ui_W3_Num = NULL;
-    ui_Scrolldots4 = NULL;
 
 }
