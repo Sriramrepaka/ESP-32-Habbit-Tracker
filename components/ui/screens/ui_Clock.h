@@ -34,7 +34,6 @@ extern lv_obj_t * ui_Sec;
 extern lv_obj_t * ui_Clock_Center;
 extern lv_obj_t * ui_Clock_Number;
 extern lv_obj_t * ui_Date;
-extern lv_obj_t * ui_Scrolldots;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

@@ -21,6 +21,10 @@ extern void ui_event_WifiEnableSwitch(lv_event_t * e);
 extern lv_obj_t * ui_WifiEnableSwitch;
 extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_InternetIndicator;
+extern void ui_event_Panel6(lv_event_t * e);
+extern lv_obj_t * ui_Panel6;
+extern lv_obj_t * ui_Label7;
+extern lv_obj_t * ui_Image4;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus
