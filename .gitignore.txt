@@ -1,0 +1,13 @@
+# ESP-IDF build directory
+build/
+
+# Python compiled files
+__pycache__/
+*.pyc
+
+# Native system files
+.DS_Store
+Thumbs.db
+
+# SquareLine Studio export artifacts (Optional, if you don't want to track UI backups)
+# SquareLine/
