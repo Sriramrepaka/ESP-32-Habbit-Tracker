@@ -22,6 +22,16 @@ extern lv_obj_t * ui_Label3;
 extern void ui_event_SketchSaveBtn(lv_event_t * e);
 extern lv_obj_t * ui_SketchSaveBtn;
 extern lv_obj_t * ui_Label8;
+extern lv_obj_t * ui_NotesNamePanel;
+extern lv_obj_t * ui_Panel10;
+extern void ui_event_NoteNameCancelBtn(lv_event_t * e);
+extern lv_obj_t * ui_NoteNameCancelBtn;
+extern lv_obj_t * ui_Label18;
+extern void ui_event_NoteNameOkBtn2(lv_event_t * e);
+extern lv_obj_t * ui_NoteNameOkBtn2;
+extern lv_obj_t * ui_Label19;
+extern lv_obj_t * ui_TextArea3;
+extern lv_obj_t * ui_NameKeyboard;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

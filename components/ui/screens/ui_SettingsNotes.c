@@ -231,7 +231,8 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_set_x(ui_TextArea1, 1);
     lv_obj_set_y(ui_TextArea1, -9);
     lv_obj_set_align(ui_TextArea1, LV_ALIGN_CENTER);
-    lv_textarea_set_placeholder_text(ui_TextArea1, "Placeholder...");
+    lv_textarea_set_placeholder_text(ui_TextArea1, "Filename");
+    lv_textarea_set_password_mode(ui_TextArea1, true);
     lv_obj_set_style_radius(ui_TextArea1, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_TextArea1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_TextArea1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
