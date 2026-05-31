@@ -21,7 +21,6 @@ extern lv_obj_t * ui_Alarm_Comp;
 extern lv_obj_t * ui_Alarm_Comp1;
 extern lv_obj_t * ui_Alarm_Comp2;
 extern lv_obj_t * ui_Alarm_Comp3;
-extern lv_obj_t * ui_Scrolldots5;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

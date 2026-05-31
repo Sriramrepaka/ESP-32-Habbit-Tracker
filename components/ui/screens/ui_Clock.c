@@ -25,21 +25,14 @@ lv_obj_t * ui_Sec = NULL;
 lv_obj_t * ui_Clock_Center = NULL;
 lv_obj_t * ui_Clock_Number = NULL;
 lv_obj_t * ui_Date = NULL;
-lv_obj_t * ui_Scrolldots = NULL;
 // event funtions
 void ui_event_Clock(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        upanim_Animation(ui_Clock_Panel, 100);
-        upanim_Animation(ui_Clock_Number, 300);
-        upanim_Animation(ui_Date, 200);
-        scrolldot_Animation(ui_Scrolldots, 0);
-    }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Chat, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Chat_screen_init);
+        _ui_screen_change(&ui_Weather, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Weather_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
@@ -191,14 +184,6 @@ void ui_Clock_screen_init(void)
     lv_obj_set_style_text_color(ui_Date, lv_color_hex(0x9C9CD9), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Date, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Scrolldots = ui_Scrolldots_create(ui_Clock);
-    lv_obj_set_x(ui_Scrolldots, 0);
-    lv_obj_set_y(ui_Scrolldots, -8);
-
-    lv_obj_set_style_bg_color(ui_comp_get_child(ui_Scrolldots, UI_COMP_SCROLLDOTS_D1), lv_color_hex(0x101C52),
-                              LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_comp_get_child(ui_Scrolldots, UI_COMP_SCROLLDOTS_D1), 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);
 
 }
@@ -228,6 +213,5 @@ void ui_Clock_screen_destroy(void)
     ui_Clock_Center = NULL;
     ui_Clock_Number = NULL;
     ui_Date = NULL;
-    ui_Scrolldots = NULL;
 
 }
