@@ -1,0 +1,31 @@
+dependencies:
+  chmorgan/esp-audio-player:
+    dependencies: []
+    source:
+      path: C:\Users\srira\ESP32-S3-Touch-LCD-2.8-Test\components\chmorgan__esp-audio-player
+      type: local
+    version: 1.0.7
+  chmorgan/esp-libhelix-mp3:
+    dependencies: []
+    source:
+      path: C:\Users\srira\ESP32-S3-Touch-LCD-2.8-Test\components\chmorgan__esp-libhelix-mp3
+      type: local
+    version: 1.0.3
+  idf:
+    source:
+      type: idf
+    version: 5.4.0
+  lvgl/lvgl:
+    dependencies: []
+    source:
+      path: C:\Users\srira\ESP32-S3-Touch-LCD-2.8-Test\components\lvgl__lvgl
+      type: local
+    version: 8.3.11
+direct_dependencies:
+- chmorgan/esp-audio-player
+- chmorgan/esp-libhelix-mp3
+- idf
+- lvgl/lvgl
+manifest_hash: bae7528f6a6018f5803604171a6ae3af5a9a9de56f1c02b358fa393c484c750c
+target: esp32s3
+version: 2.0.0
