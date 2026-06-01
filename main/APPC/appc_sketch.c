@@ -18,6 +18,7 @@ static const char *TAG = "APPC_SKETCH";
 
 static lv_obj_t *note_buttons[MAX_NOTES];
 static int note_count = 0;
+static bool trigger_notes_refresh = false;
 
 static char current_editing_file[128] = {0};
 static char selected_note_path[128] = {0};
@@ -31,9 +32,7 @@ static uint8_t viewer_canvas_buffer[CANVAS_BYTE_SIZE] __attribute__((aligned(4))
 static lv_obj_t *viewer_canvas_obj = NULL;
 static lv_point_t viewer_last_point = {0, 0};
 
-
-void appc_sketch_clear(void);
-void appc_sketch_load_all_notes(void);
+void appc_sketch_load_all_notes( void );
 
 static void sketch_event_cb(lv_event_t * e) {
     lv_event_code_t code = lv_event_get_code(e);
@@ -96,6 +95,13 @@ static void viewer_sketch_event_cb(lv_event_t * e) {
     }
 }
 
+void appc_sketch_clear(void){
+    
+    memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
+    lv_obj_invalidate(canvas_obj);
+
+}
+
 void appc_sketch_close(lv_event_t * e){
 
     appc_sketch_clear();
@@ -130,6 +136,21 @@ void appc_sketch_init(void) {
     if (ui_Panel4 == NULL) {
         // No error log here, it's expected at boot
         return; 
+    }
+
+    if (ui_SketchViewSaveBtn2 != NULL) {
+        // Increase the touch area by 20 pixels on all sides
+        lv_obj_set_ext_click_area(ui_SketchViewSaveBtn2, 20);
+    }
+
+    if (ui_SketchViewCloseBtn2 != NULL) {
+        // Increase the touch area by 20 pixels on all sides
+        lv_obj_set_ext_click_area(ui_SketchViewCloseBtn2, 20);
+    }
+
+    if (ui_SketchViewDeleteBtn1 != NULL) {
+        // Increase the touch area by 20 pixels on all sides
+        lv_obj_set_ext_click_area(ui_SketchViewDeleteBtn1, 20);
     }
 
     // 3. Now it is safe to proceed
@@ -183,16 +204,9 @@ void appc_sketch_init(void) {
 
     
     lv_obj_add_event_cb(canvas_obj, sketch_event_cb, LV_EVENT_ALL, NULL);
+    
     appc_sketch_load_all_notes();
-    
     ESP_LOGI(TAG, "Sketchpad Dynamic Init Successful");
-}
-
-void appc_sketch_clear(void){
-    
-    memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
-    lv_obj_invalidate(canvas_obj);
-
 }
 
 void savec_canvas_to_bmp(const char *filename) {
@@ -306,6 +320,7 @@ void appc_note_save(lv_event_t * e){
         savec_canvas_to_bmp(full_path);
 
         // 1. Re-enable sketch canvas
+        trigger_notes_refresh = true;
         appc_sketch_clear();
         appc_sketch_set_visible(true); 
         
@@ -396,7 +411,7 @@ static void dynamic_row_click_cb(lv_event_t * e) {
     }
 }
 
-void appc_sketch_load_all_notes(void) {
+void appc_sketch_load_all_notes( void ) {
     // 1. Clean out previously created buttons
     for(int i = 0; i < note_count; i++) {
         if(note_buttons[i] != NULL) {
@@ -494,7 +509,24 @@ void appc_sketch_load_all_notes(void) {
     if(ui_NoteTemplate != NULL) {
         lv_obj_add_flag(ui_NoteTemplate, LV_OBJ_FLAG_HIDDEN);
     }
-    
+
     // Refresh parent container view
     lv_obj_invalidate(ui_NotesDisplayPanel);
+}
+
+static void notes_click_cb(lv_event_t * e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) {
+        ESP_LOGI(TAG, "Refresh requested via UI click...");
+        trigger_notes_refresh = true; // 👈 Simply raise the flag!
+    }
+}
+
+void appc_sketch_update_loop(void) {
+    
+    if (trigger_notes_refresh) {
+        trigger_notes_refresh = false; // Reset the flag
+        ESP_LOGI(TAG, "Safely execution directory scan outside UI stack context...");
+        appc_sketch_load_all_notes();  // Call your directory reloader safely
+    }
 }
