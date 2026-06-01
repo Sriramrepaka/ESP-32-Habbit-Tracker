@@ -53,7 +53,6 @@ void app_main(void)
     LVGL_Init();   // returns the screen object
     ui_init();
     appc_init();
-    printf("sketch_init\n");
     appc_sketch_init();
     printf("Here while booting 2\n");
 
@@ -71,6 +70,8 @@ void app_main(void)
         
         // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
         lv_timer_handler();
+
+        appc_sketch_update_loop();
 
         // raise the task priority of LVGL and/or reduce the handler period can improve the performance
         vTaskDelay(pdMS_TO_TICKS(10));
