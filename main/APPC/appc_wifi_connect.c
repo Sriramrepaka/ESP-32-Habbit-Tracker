@@ -38,7 +38,7 @@ void app_wifi_ui_populate(void) {
     app_wifi_auto_connect(ap_info, number);
     
     if(lv_obj_get_screen(ui_uiWifiList) != lv_scr_act()) {
-            printf("In populate if\n");
+            ESP_LOGI(TAG,"Not on WIFI screen, Not populating UI");
             is_wifi_busy = false;
             return; 
     }
