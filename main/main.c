@@ -54,7 +54,7 @@ void app_main(void)
     ui_init();
     appc_init();
     printf("sketch_init\n");
-    app_sketch_init();
+    appc_sketch_init();
     printf("Here while booting 2\n");
 
 /********************* Demo *********************/

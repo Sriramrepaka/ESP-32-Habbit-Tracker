@@ -3,7 +3,11 @@
 #include "ui.h"
 
 
-void app_sketch_init(void);
-void app_sketch_close(lv_event_t * e);
+void appc_sketch_init(void);
+void appc_sketch_close(lv_event_t * e);
+void app_sketch_set_visible(bool visible);
+void appc_sketch_save(lv_event_t * e);
+void appc_note_cancel(lv_event_t * e);
+void appc_note_save(lv_event_t * e);
 
 #endif
