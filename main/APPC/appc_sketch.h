@@ -10,5 +10,6 @@ void appc_sketch_save(lv_event_t * e);
 void appc_note_cancel(lv_event_t * e);
 void appc_note_save(lv_event_t * e);
 void appc_sketch_update_loop(void);
+void appc_sketch_check_async_trigger(void);
 
 #endif
