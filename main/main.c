@@ -9,8 +9,11 @@
 #include "PCM5101.h"
 #include "ui.h"
 #include "appc.h"
+#include "esp_task_wdt.h"
 
-#define DEFAULT_SCAN_LIST_SIZE 10
+
+extern volatile bool trigger_wifi_ui_update;
+
 
 void Driver_Loop(void *parameter)
 {
@@ -65,16 +68,27 @@ void app_main(void)
     // lv_demo_music();
     // demo_wifi();
     
-    
     while (1) {
+
+        esp_task_wdt_reset();
         
+        appc_sketch_check_async_trigger();
+        
+        if (trigger_wifi_ui_update) {
+            trigger_wifi_ui_update = false; // Reset the flag
+            appc_wifi_ui_populate();     // Run the UI routine safely
+        }
+
         // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
-        lv_timer_handler();
+        uint32_t time_till_next_run = lv_timer_handler(); 
 
-        appc_sketch_update_loop();
-
-        // raise the task priority of LVGL and/or reduce the handler period can improve the performance
-        vTaskDelay(pdMS_TO_TICKS(10));
+        if(time_till_next_run == 0) {
+            time_till_next_run = 1;
+        } else if(time_till_next_run > 30) {
+            time_till_next_run = 30;
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(time_till_next_run));
         
     }
 }

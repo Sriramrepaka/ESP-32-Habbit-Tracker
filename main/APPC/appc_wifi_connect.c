@@ -10,6 +10,7 @@
 
 extern bool WiFi_Scan_Finish;
 bool is_wifi_busy = false; // The safety lock
+volatile bool trigger_wifi_ui_update = false;
 
 extern char selected_ssid[32];
 char password_buffer[64];
@@ -20,7 +21,7 @@ static const char *TAG = "APPC_WIFI";
 
 appc_wifi_status_t current_wifi_status = WIFI_STATUS_DISCONNECTED;
 
-void app_wifi_ui_populate(void) {
+void appc_wifi_ui_populate(void) {
 
     uint16_t number = DEFAULT_SCAN_LIST_SIZE; // Set a reasonable limit
     wifi_ap_record_t ap_info[DEFAULT_SCAN_LIST_SIZE];
@@ -95,7 +96,8 @@ void wifi_wait_and_update_task(void * pvParameters) {
     }
 
     // 2. Schedule the UI update on the next LVGL cycle
-    lv_async_call((lv_async_cb_t)app_wifi_ui_populate, NULL);
+    //lv_async_call((lv_async_cb_t)appc_wifi_ui_populate, NULL);
+    trigger_wifi_ui_update = true;
 
     vTaskDelete(NULL);
 }

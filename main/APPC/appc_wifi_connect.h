@@ -25,5 +25,6 @@ esp_err_t app_nvs_load_credentials(char* ssid, char* password);
 void app_wifi_auto_connect(wifi_ap_record_t * ap_info, uint16_t count);
 void app_wifi_close(lv_event_t * e);
 void app_wifi_enable_disable(lv_event_t * e);
+void appc_wifi_ui_populate(void);
 
 #endif
