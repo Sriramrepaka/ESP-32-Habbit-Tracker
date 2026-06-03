@@ -70,8 +70,6 @@ void app_main(void)
     
     while (1) {
 
-        esp_task_wdt_reset();
-        
         appc_sketch_check_async_trigger();
         
         if (trigger_wifi_ui_update) {
@@ -79,16 +77,9 @@ void app_main(void)
             appc_wifi_ui_populate();     // Run the UI routine safely
         }
 
-        // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
-        uint32_t time_till_next_run = lv_timer_handler(); 
-
-        if(time_till_next_run == 0) {
-            time_till_next_run = 1;
-        } else if(time_till_next_run > 30) {
-            time_till_next_run = 30;
-        }
+        lv_timer_handler(); 
         
-        vTaskDelay(pdMS_TO_TICKS(time_till_next_run));
+        vTaskDelay(pdMS_TO_TICKS(10));
         
     }
 }
