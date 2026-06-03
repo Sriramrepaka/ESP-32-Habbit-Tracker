@@ -37,7 +37,6 @@ static uint8_t *canvas_buffer = NULL;
 static lv_obj_t *canvas_obj = NULL;
 static lv_point_t last_point = {0, 0};
 
-static uint8_t *viewer_canvas_buffer = NULL;
 static lv_obj_t *viewer_canvas_obj = NULL;
 static lv_point_t viewer_last_point = {0, 0};
 
@@ -142,6 +141,7 @@ void appc_sketch_trigger_refresh(void) {
 }
 
 void appc_sketch_init(void) {
+
     if (canvas_obj != NULL) {
         return; 
     }
@@ -152,23 +152,14 @@ void appc_sketch_init(void) {
 
     // Allocate Canvas Buffers dynamically out of PSRAM to reclaim internal heap room
     if (canvas_buffer == NULL) {
-        canvas_buffer = heap_caps_malloc(CANVAS_BYTE_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        canvas_buffer = heap_caps_malloc(CANVAS_BYTE_SIZE, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
         if (canvas_buffer == NULL) {
             ESP_LOGE(TAG, "Failed to allocate main canvas buffer in PSRAM!");
             return;
         }
     }
 
-    if (viewer_canvas_buffer == NULL) {
-        viewer_canvas_buffer = heap_caps_malloc(CANVAS_BYTE_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (viewer_canvas_buffer == NULL) {
-            ESP_LOGE(TAG, "Failed to allocate viewer canvas buffer in PSRAM!");
-            return;
-        }
-    }
-
     memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
-    memset(viewer_canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
 
     if (ui_SketchViewSaveBtn2 != NULL) lv_obj_set_ext_click_area(ui_SketchViewSaveBtn2, 20);
     if (ui_SketchViewCloseBtn2 != NULL) lv_obj_set_ext_click_area(ui_SketchViewCloseBtn2, 20);
@@ -188,7 +179,7 @@ void appc_sketch_init(void) {
     if (ui_SketchViewPanel != NULL) {
         viewer_canvas_obj = lv_canvas_create(ui_SketchViewPanel);
         if (viewer_canvas_obj != NULL) {
-            lv_canvas_set_buffer(viewer_canvas_obj, viewer_canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+            lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
             lv_obj_set_size(viewer_canvas_obj, CANVAS_WIDTH, CANVAS_HEIGHT);
             lv_obj_align(viewer_canvas_obj, LV_ALIGN_CENTER, 0, 0);
             lv_obj_clear_flag(ui_SketchViewPanel, LV_OBJ_FLAG_SCROLLABLE);
@@ -343,7 +334,7 @@ static void dynamic_row_click_cb(lv_event_t * e) {
             snprintf(selected_note_path, sizeof(selected_note_path), "/sdcard/%s", filename);
             ESP_LOGI(TAG, "Attempting view load path sequence: %s", selected_note_path);
 
-            if (load_bmp_to_canvas(selected_note_path, viewer_canvas_buffer, viewer_canvas_obj)) {
+            if (load_bmp_to_canvas(selected_note_path, canvas_buffer, viewer_canvas_obj)) {
                 lv_obj_clear_flag(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_move_foreground(ui_NotesViewPanel);
             }
@@ -422,33 +413,32 @@ static void appc_sketch_create_individual_row(int index) {
         lv_obj_set_style_text_color(label, lv_color_hex(0x120000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(label, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+        
     }
 
-    lv_obj_t * img = lv_img_create(new_btn);
-    if(img != NULL) {
-        lv_img_set_src(img, &ui_img_note_png);
-        lv_obj_set_width(img, 32);
-        lv_obj_set_height(img, 32);
-        lv_obj_set_x(img, -85);
-        lv_obj_set_y(img, -2);
-        lv_obj_set_align(img, LV_ALIGN_CENTER);
-        lv_obj_add_flag(img, LV_OBJ_FLAG_ADV_HITTEST);
-        lv_obj_clear_flag(img, LV_OBJ_FLAG_SCROLLABLE);
-    } else {
-        ESP_LOGE(TAG, "Out of memory error while loading raw image pointer structure!");
-    }
-
-    lv_obj_t * edit_btn = lv_imgbtn_create(new_btn);
+    lv_obj_t * edit_btn = lv_btn_create(new_btn);
     if(edit_btn != NULL) {
-        lv_imgbtn_set_src(edit_btn, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_write_black_png, NULL);
-        lv_imgbtn_set_src(edit_btn, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_write_black_png, NULL);
         lv_obj_set_width(edit_btn, 32);
         lv_obj_set_height(edit_btn, 32);
         lv_obj_set_x(edit_btn, 88);
         lv_obj_set_y(edit_btn, -2);
         lv_obj_set_align(edit_btn, LV_ALIGN_CENTER);
+
+        lv_obj_set_style_bg_color(edit_btn, lv_color_hex(0xFF5F1F), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(edit_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(edit_btn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(edit_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(edit_btn, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_side(edit_btn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
+        
+        // CRITICAL: Remove default button padding so text can center in a small 32x32 box
+        lv_obj_set_style_pad_all(edit_btn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        
         lv_obj_add_event_cb(edit_btn, dynamic_edit_click_cb, LV_EVENT_CLICKED, NULL);
+
     }
+
+    
 
     lv_obj_add_event_cb(new_btn, dynamic_row_click_cb, LV_EVENT_CLICKED, NULL);
 
@@ -464,7 +454,7 @@ static void appc_sketch_create_individual_row(int index) {
 static void appc_sketch_async_row_painter(void * param) {
     int target_index = (int)(uintptr_t)param;
 
-    // First element initialization sequence
+    // If we are starting at row 0, clear out the old elements first!
     if (target_index == 0) {
         ESP_LOGI(TAG, "Updating LVGL objects smoothly via safe Async Chain...");
         for(int i = 0; i < note_count; i++) {
@@ -476,31 +466,38 @@ static void appc_sketch_async_row_painter(void * param) {
         note_count = 0;
     }
 
-    // Process precisely one item per cycle execution call frame
+    // Paint ONLY the single row requested for this frame call!
     if (target_index >= 0 && target_index < fetched_note_count) {
         appc_sketch_create_individual_row(target_index);
-        target_index++; 
+    }
+}
 
-        if (target_index < fetched_note_count) {
-            // Re-schedule execution on the main loop for the next row
-            lv_async_call(appc_sketch_async_row_painter, (void*)(uintptr_t)target_index);
+
+void appc_sketch_check_async_trigger(void) {
+    // Keep track of which row we need to paint across main loop frames
+    static int current_paint_index = -1;
+
+    // 1. If the background thread just set the flag, reset our painter tracking index to 0
+    if (notes_data_ready) {
+        notes_data_ready = false; // Consume flag context
+        current_paint_index = 0;   // Start rendering row 0
+    }
+
+    // 2. If we are currently in the middle of a painting sequence
+    if (current_paint_index >= 0) {
+        if (current_paint_index < fetched_note_count) {
+            // Safely schedule the single row painter
+            lv_async_call(appc_sketch_async_row_painter, (void*)(uintptr_t)current_paint_index);
+            current_paint_index++; // Advance to the next row for the next frame loop
         } else {
-            // Construction finished completely. Finalize views.
+            // We finished drawing all rows completely!
+            current_paint_index = -1; // Reset tracking state until next refresh
+            
             if(ui_NoteTemplate != NULL) {
                 lv_obj_add_flag(ui_NoteTemplate, LV_OBJ_FLAG_HIDDEN);
             }
             lv_obj_invalidate(ui_NotesDisplayPanel);
-            ESP_LOGI(TAG, "Async staggered screen construction completed cleanly!");
+            ESP_LOGI(TAG, "Async staggered screen construction completed cleanly across frames!");
         }
-    }
-}
-
-// MAIN LOOP CHECK TRIGGER: Called from main.c loop cycle right BEFORE lv_timer_handler
-void appc_sketch_check_async_trigger(void) {
-    if (notes_data_ready) {
-        notes_data_ready = false; // Consume flag context
-        
-        // Safely launch async chain execution since we are running natively inside Core 0
-        lv_async_call(appc_sketch_async_row_painter, (void*)(uintptr_t)0);
     }
 }
