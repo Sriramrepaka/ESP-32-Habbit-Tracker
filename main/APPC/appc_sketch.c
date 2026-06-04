@@ -161,10 +161,6 @@ void appc_sketch_init(void) {
 
     memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
 
-    if (ui_SketchViewSaveBtn2 != NULL) lv_obj_set_ext_click_area(ui_SketchViewSaveBtn2, 20);
-    if (ui_SketchViewCloseBtn2 != NULL) lv_obj_set_ext_click_area(ui_SketchViewCloseBtn2, 20);
-    if (ui_SketchViewDeleteBtn1 != NULL) lv_obj_set_ext_click_area(ui_SketchViewDeleteBtn1, 20);
-
     lv_obj_t * parent = lv_obj_get_parent(ui_Panel4);
     canvas_obj = lv_canvas_create(parent);
     if(canvas_obj == NULL) return;

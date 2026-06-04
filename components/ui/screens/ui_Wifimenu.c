@@ -171,7 +171,7 @@ void ui_Wifimenu_screen_init(void)
     ui_WifiRefreshButton = lv_btn_create(ui_Panel3);
     lv_obj_set_width(ui_WifiRefreshButton, 26);
     lv_obj_set_height(ui_WifiRefreshButton, 26);
-    lv_obj_set_x(ui_WifiRefreshButton, 28);
+    lv_obj_set_x(ui_WifiRefreshButton, 25);
     lv_obj_set_y(ui_WifiRefreshButton, -124);
     lv_obj_set_align(ui_WifiRefreshButton, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_WifiRefreshButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
