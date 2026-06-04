@@ -26,6 +26,7 @@ extern void ui_event_SettingsNoteCloseBtn(lv_event_t * e);
 extern lv_obj_t * ui_SettingsNoteCloseBtn;
 extern lv_obj_t * ui_Label13;
 extern lv_obj_t * ui_Label14;
+extern lv_obj_t * ui_Label20;
 extern lv_obj_t * ui_NotesRenamePanel;
 extern lv_obj_t * ui_Panel11;
 extern lv_obj_t * ui_TextArea1;

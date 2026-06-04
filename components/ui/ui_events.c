@@ -4,29 +4,18 @@
 // Project name: Smart_Gadget
 
 #include "ui.h"
-#include "esp_log.h"
-#include<stdio.h>
-
-static const char *TAG = "UI_EVENT";
-
-char selected_ssid[33];
 
 void ui_event_wifi_item_clicked(lv_event_t * e)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e); // This is the button that was clicked
-    
-    if(code == LV_EVENT_CLICKED) {
-       // 1. Get the SSID from the button's child label
-        // In your populate loop, the icon is child 0 and the label is child 1
-        lv_obj_t * ssid_label = lv_obj_get_child(obj, 1); 
-        const char * ssid_text = lv_label_get_text(ssid_label);
+	// Your code here
+}
 
-		// 2. Store it for the connect step
-        strncpy(selected_ssid, ssid_text, sizeof(selected_ssid));
+void ui_app_wifi_scan_refresh(lv_event_t * e)
+{
+	// Your code here
+}
 
-		ESP_LOGI(TAG,"Selected SSID: %s", selected_ssid);
-
-		_ui_flag_modify(ui_uiPassPopup, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
+void ui_event_ConnectBtn_Clicked(lv_event_t * e)
+{
+	// Your code here
 }

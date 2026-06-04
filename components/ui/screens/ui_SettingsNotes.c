@@ -15,6 +15,7 @@ lv_obj_t * ui_NoteEditBtn = NULL;
 lv_obj_t * ui_SettingsNoteCloseBtn = NULL;
 lv_obj_t * ui_Label13 = NULL;
 lv_obj_t * ui_Label14 = NULL;
+lv_obj_t * ui_Label20 = NULL;
 lv_obj_t * ui_NotesRenamePanel = NULL;
 lv_obj_t * ui_Panel11 = NULL;
 lv_obj_t * ui_TextArea1 = NULL;
@@ -203,6 +204,18 @@ void ui_SettingsNotes_screen_init(void)
     lv_label_set_text(ui_Label14, "Notes");
     lv_obj_set_style_text_color(ui_Label14, lv_color_hex(0x060404), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label14, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label14, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label20 = lv_label_create(ui_Panel7);
+    lv_obj_set_width(ui_Label20, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label20, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label20, -80);
+    lv_obj_set_y(ui_Label20, -141);
+    lv_obj_set_align(ui_Label20, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label20, "Rename");
+    lv_obj_set_style_text_color(ui_Label20, lv_color_hex(0xFF5F1F), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label20, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label20, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_NotesRenamePanel = lv_obj_create(ui_SettingsNotes);
     lv_obj_set_width(ui_NotesRenamePanel, lv_pct(100));
@@ -444,6 +457,7 @@ void ui_SettingsNotes_screen_destroy(void)
     ui_SettingsNoteCloseBtn = NULL;
     ui_Label13 = NULL;
     ui_Label14 = NULL;
+    ui_Label20 = NULL;
     ui_NotesRenamePanel = NULL;
     ui_Panel11 = NULL;
     ui_TextArea1 = NULL;

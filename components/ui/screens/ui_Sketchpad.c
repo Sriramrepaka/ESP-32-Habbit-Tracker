@@ -16,7 +16,7 @@ lv_obj_t * ui_NotesNamePanel = NULL;
 lv_obj_t * ui_Panel10 = NULL;
 lv_obj_t * ui_NoteNameCancelBtn = NULL;
 lv_obj_t * ui_Label18 = NULL;
-lv_obj_t * ui_NoteNameOkBtn2 = NULL;
+lv_obj_t * ui_NoteNameOkBtn = NULL;
 lv_obj_t * ui_Label19 = NULL;
 lv_obj_t * ui_TextArea3 = NULL;
 lv_obj_t * ui_NameKeyboard = NULL;
@@ -48,7 +48,7 @@ void ui_event_NoteNameCancelBtn(lv_event_t * e)
     }
 }
 
-void ui_event_NoteNameOkBtn2(lv_event_t * e)
+void ui_event_NoteNameOkBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -189,26 +189,26 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_set_style_text_color(ui_Label18, lv_color_hex(0x030303), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label18, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_NoteNameOkBtn2 = lv_btn_create(ui_Panel10);
-    lv_obj_set_width(ui_NoteNameOkBtn2, 65);
-    lv_obj_set_height(ui_NoteNameOkBtn2, 25);
-    lv_obj_set_x(ui_NoteNameOkBtn2, 67);
-    lv_obj_set_y(ui_NoteNameOkBtn2, 27);
-    lv_obj_set_align(ui_NoteNameOkBtn2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoteNameOkBtn2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_NoteNameOkBtn2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_NoteNameOkBtn2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_NoteNameOkBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_NoteNameOkBtn2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_NoteNameOkBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_NoteNameOkBtn2, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_NoteNameOkBtn2, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_NoteNameOkBtn2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
+    ui_NoteNameOkBtn = lv_btn_create(ui_Panel10);
+    lv_obj_set_width(ui_NoteNameOkBtn, 65);
+    lv_obj_set_height(ui_NoteNameOkBtn, 25);
+    lv_obj_set_x(ui_NoteNameOkBtn, 67);
+    lv_obj_set_y(ui_NoteNameOkBtn, 27);
+    lv_obj_set_align(ui_NoteNameOkBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_NoteNameOkBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_NoteNameOkBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_NoteNameOkBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_NoteNameOkBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_NoteNameOkBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_NoteNameOkBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_NoteNameOkBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_NoteNameOkBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_NoteNameOkBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
                                            _ui_theme_color_click_blue);
-    ui_object_set_themeable_style_property(ui_NoteNameOkBtn2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
+    ui_object_set_themeable_style_property(ui_NoteNameOkBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
                                            _ui_theme_alpha_click_blue);
 
-    ui_Label19 = lv_label_create(ui_NoteNameOkBtn2);
+    ui_Label19 = lv_label_create(ui_NoteNameOkBtn);
     lv_obj_set_width(ui_Label19, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label19, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label19, LV_ALIGN_CENTER);
@@ -242,7 +242,7 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_add_event_cb(ui_SketchCloseBtn, ui_event_SketchCloseBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SketchSaveBtn, ui_event_SketchSaveBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, ui_event_NoteNameCancelBtn, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_NoteNameOkBtn2, ui_event_NoteNameOkBtn2, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_NoteNameOkBtn, ui_event_NoteNameOkBtn, LV_EVENT_ALL, NULL);
     lv_keyboard_set_textarea(ui_NameKeyboard, ui_TextArea3);
 
 }
@@ -263,7 +263,7 @@ void ui_Sketchpad_screen_destroy(void)
     ui_Panel10 = NULL;
     ui_NoteNameCancelBtn = NULL;
     ui_Label18 = NULL;
-    ui_NoteNameOkBtn2 = NULL;
+    ui_NoteNameOkBtn = NULL;
     ui_Label19 = NULL;
     ui_TextArea3 = NULL;
     ui_NameKeyboard = NULL;
