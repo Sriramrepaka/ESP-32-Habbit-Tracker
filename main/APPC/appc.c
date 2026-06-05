@@ -132,7 +132,7 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_WifiEnableSwitch, app_wifi_enable_disable, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_add_event_cb(ui_SketchCloseBtn, appc_sketch_close, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchSaveBtn, appc_sketch_save, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(ui_NoteNameOkBtn2, appc_note_save, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
 
 }
