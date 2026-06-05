@@ -96,8 +96,8 @@ void wifi_wait_and_update_task(void * pvParameters) {
     }
 
     // 2. Schedule the UI update on the next LVGL cycle
-    //lv_async_call((lv_async_cb_t)appc_wifi_ui_populate, NULL);
-    trigger_wifi_ui_update = true;
+    lv_async_call((lv_async_cb_t)appc_wifi_ui_populate, NULL);
+    //trigger_wifi_ui_update = true;
 
     vTaskDelete(NULL);
 }
