@@ -77,9 +77,6 @@ void appc_wifi_ui_populate(void) {
         lv_obj_clear_flag(ssid_label, LV_OBJ_FLAG_EVENT_BUBBLE);
         lv_obj_align(ssid_label, LV_ALIGN_LEFT_MID, 40, 0);
 
-
-        // 5. Attach the events you set in SquareLine
-        // This connects it to your ui_events.c function
         lv_obj_add_event_cb(new_btn, ui_event_wifi_item_clicked, LV_EVENT_CLICKED, NULL);
     }
 
@@ -97,8 +94,7 @@ void wifi_wait_and_update_task(void * pvParameters) {
 
     // 2. Schedule the UI update on the next LVGL cycle
     lv_async_call((lv_async_cb_t)appc_wifi_ui_populate, NULL);
-    //trigger_wifi_ui_update = true;
-
+    
     vTaskDelete(NULL);
 }
 

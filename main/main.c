@@ -11,10 +11,6 @@
 #include "appc.h"
 #include "esp_task_wdt.h"
 
-
-//extern volatile bool trigger_wifi_ui_update;
-
-
 void Driver_Loop(void *parameter)
 {
     Wireless_Init();
@@ -71,11 +67,6 @@ void app_main(void)
     while (1) {
 
         appc_sketch_check_async_trigger();
-        
-        // if (trigger_wifi_ui_update) {
-        //     trigger_wifi_ui_update = false; // Reset the flag
-        //     appc_wifi_ui_populate();     // Run the UI routine safely
-        // }
 
         lv_timer_handler(); 
         
