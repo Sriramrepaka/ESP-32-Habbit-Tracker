@@ -44,6 +44,32 @@ static lv_point_t viewer_last_point = {0, 0};
 static void appc_sketch_async_row_painter(void * param);
 static void notes_loader_worker_task(void *pvParameters);
 
+// Safely grabs internal memory for the canvas on-demand
+static bool allocate_canvas_buffer_if_needed(void) {
+    if (canvas_buffer == NULL) {
+        canvas_buffer = heap_caps_malloc(CANVAS_BYTE_SIZE, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+        if (canvas_buffer == NULL) {
+            ESP_LOGE(TAG, "DYNAMIC ERROR: Failed to allocate canvas buffer in Internal RAM!");
+            return false;
+        }
+        ESP_LOGI(TAG, "DYNAMIC MEMORY: Canvas buffer allocated cleanly (%d bytes).", CANVAS_BYTE_SIZE);
+    }
+    return true;
+}
+
+// Safely releases memory back to the heap for Wi-Fi and other UI elements
+static void free_canvas_buffer(void) {
+    if (canvas_buffer != NULL) {
+        // Disconnect the buffer from the widgets first so they don't look at dangling memory
+        if (canvas_obj != NULL) lv_canvas_set_buffer(canvas_obj, NULL, 0, 0, LV_IMG_CF_ALPHA_1BIT);
+        if (viewer_canvas_obj != NULL) lv_canvas_set_buffer(viewer_canvas_obj, NULL, 0, 0, LV_IMG_CF_ALPHA_1BIT);
+        
+        free(canvas_buffer);
+        canvas_buffer = NULL;
+        ESP_LOGI(TAG, "DYNAMIC MEMORY: Canvas buffer freed completely. Heap recovered!");
+    }
+}
+
 static void sketch_event_cb(lv_event_t * e) {
     lv_event_code_t code = lv_event_get_code(e);
     lv_indev_t * indev = lv_indev_get_act();
@@ -115,12 +141,23 @@ void appc_sketch_set_visible(bool visible) {
     if (canvas_obj == NULL) return;
 
     if (visible) {
+
+        // Grab the internal memory right before showing the canvas
+        if (!allocate_canvas_buffer_if_needed()) return;
+        
+        // Link the freshly allocated buffer back to the canvas widget
+        lv_canvas_set_buffer(canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+        memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE); // Clear it white
+
         lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_move_foreground(canvas_obj);
     } else {
         lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
+
+        // Free it immediately when leaving sketching mode
+        free_canvas_buffer();
     }
 }
 
@@ -150,22 +187,11 @@ void appc_sketch_init(void) {
         return; 
     }
 
-    // Allocate Canvas Buffers dynamically out of PSRAM to reclaim internal heap room
-    if (canvas_buffer == NULL) {
-        canvas_buffer = heap_caps_malloc(CANVAS_BYTE_SIZE, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-        if (canvas_buffer == NULL) {
-            ESP_LOGE(TAG, "Failed to allocate main canvas buffer in PSRAM!");
-            return;
-        }
-    }
-
-    memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
-
     lv_obj_t * parent = lv_obj_get_parent(ui_Panel4);
     canvas_obj = lv_canvas_create(parent);
     if(canvas_obj == NULL) return;
 
-    lv_canvas_set_buffer(canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+    //lv_canvas_set_buffer(canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
 
     lv_coord_t x_ofs = lv_obj_get_x_aligned(ui_Panel4);
     lv_coord_t y_ofs = lv_obj_get_y_aligned(ui_Panel4);
@@ -175,7 +201,7 @@ void appc_sketch_init(void) {
     if (ui_SketchViewPanel != NULL) {
         viewer_canvas_obj = lv_canvas_create(ui_SketchViewPanel);
         if (viewer_canvas_obj != NULL) {
-            lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+            //lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
             lv_obj_set_size(viewer_canvas_obj, CANVAS_WIDTH, CANVAS_HEIGHT);
             lv_obj_align(viewer_canvas_obj, LV_ALIGN_CENTER, 0, 0);
             lv_obj_clear_flag(ui_SketchViewPanel, LV_OBJ_FLAG_SCROLLABLE);
@@ -189,11 +215,11 @@ void appc_sketch_init(void) {
         ESP_LOGE(TAG, "ui_SketchViewPanel container object layout is missing!");
     }
 
-    lv_obj_invalidate(canvas_obj);
     lv_obj_add_flag(ui_Panel4, LV_OBJ_FLAG_HIDDEN); 
+    lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_move_foreground(canvas_obj);
+    //lv_obj_move_foreground(canvas_obj);
 
     lv_obj_add_event_cb(canvas_obj, sketch_event_cb, LV_EVENT_ALL, NULL);
     
@@ -330,9 +356,17 @@ static void dynamic_row_click_cb(lv_event_t * e) {
             snprintf(selected_note_path, sizeof(selected_note_path), "/sdcard/%s", filename);
             ESP_LOGI(TAG, "Attempting view load path sequence: %s", selected_note_path);
 
+            if (!allocate_canvas_buffer_if_needed()) return;
+
+            // Link it to the viewer widget
+            lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+
             if (load_bmp_to_canvas(selected_note_path, canvas_buffer, viewer_canvas_obj)) {
                 lv_obj_clear_flag(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_move_foreground(ui_NotesViewPanel);
+            }else {
+                // If the file loading failed, clean memory up right away
+                free_canvas_buffer();
             }
         }
     }
@@ -433,8 +467,6 @@ static void appc_sketch_create_individual_row(int index) {
         lv_obj_add_event_cb(edit_btn, dynamic_edit_click_cb, LV_EVENT_CLICKED, NULL);
 
     }
-
-    
 
     lv_obj_add_event_cb(new_btn, dynamic_row_click_cb, LV_EVENT_CLICKED, NULL);
 
