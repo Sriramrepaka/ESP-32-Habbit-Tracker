@@ -32,7 +32,7 @@ static int note_count = 0;
 static char current_editing_file[128] = {0};
 static char selected_note_path[128] = {0};
 
-// Convert static arrays to pointers so they can be allocated from PSRAM
+// Convert static arrays to pointers so they can be allocated from RAM on demand
 static uint8_t *canvas_buffer = NULL;
 static lv_obj_t *canvas_obj = NULL;
 static lv_point_t last_point = {0, 0};
@@ -43,6 +43,7 @@ static lv_point_t viewer_last_point = {0, 0};
 // Forward declarations of our async callbacks
 static void appc_sketch_async_row_painter(void * param);
 static void notes_loader_worker_task(void *pvParameters);
+void appc_sketch_set_visible(bool visible);
 
 // Safely grabs internal memory for the canvas on-demand
 static bool allocate_canvas_buffer_if_needed(void) {
@@ -60,10 +61,8 @@ static bool allocate_canvas_buffer_if_needed(void) {
 // Safely releases memory back to the heap for Wi-Fi and other UI elements
 static void free_canvas_buffer(void) {
     if (canvas_buffer != NULL) {
-        // Disconnect the buffer from the widgets first so they don't look at dangling memory
-        if (canvas_obj != NULL) lv_canvas_set_buffer(canvas_obj, NULL, 0, 0, LV_IMG_CF_ALPHA_1BIT);
-        if (viewer_canvas_obj != NULL) lv_canvas_set_buffer(viewer_canvas_obj, NULL, 0, 0, LV_IMG_CF_ALPHA_1BIT);
-        
+        // FIXED: Do NOT use lv_canvas_set_buffer(..., NULL, 0, 0, ...) inside an active click chain 
+        // to prevent LVGL layout engine infinite loop watchdog timeouts. Instead, free the buffer safely.
         free(canvas_buffer);
         canvas_buffer = NULL;
         ESP_LOGI(TAG, "DYNAMIC MEMORY: Canvas buffer freed completely. Heap recovered!");
@@ -86,6 +85,8 @@ static void sketch_event_cb(lv_event_t * e) {
     if(code == LV_EVENT_PRESSED) {
         last_point = curr_point;
     } else if(code == LV_EVENT_PRESSING) {
+        if (canvas_buffer == NULL) return; // Prevent crashes if memory hasn't mapped yet
+        
         lv_draw_line_dsc_t line_dsc;
         lv_draw_line_dsc_init(&line_dsc);
         line_dsc.color = lv_color_hex(0x000000);
@@ -114,6 +115,8 @@ static void viewer_sketch_event_cb(lv_event_t * e) {
     if(code == LV_EVENT_PRESSED) {
         viewer_last_point = curr_point;
     } else if(code == LV_EVENT_PRESSING) {
+        if (canvas_buffer == NULL) return; // Safeguard context bound
+        
         lv_draw_line_dsc_t line_dsc;
         lv_draw_line_dsc_init(&line_dsc);
         line_dsc.color = lv_color_hex(0x000000); 
@@ -127,6 +130,7 @@ static void viewer_sketch_event_cb(lv_event_t * e) {
 }
 
 void appc_sketch_clear(void){
+    // When the screen requests clearing, reset the buffer contents if active
     if (canvas_buffer != NULL) {
         memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE);
         lv_obj_invalidate(canvas_obj);
@@ -134,29 +138,37 @@ void appc_sketch_clear(void){
 }
 
 void appc_sketch_close(lv_event_t * e){
-    appc_sketch_clear();
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) {
+        // Turn visibility completely off, which triggers canvas cleanup memory release paths
+        appc_sketch_set_visible(false);
+    }
 }
 
 void appc_sketch_set_visible(bool visible) {
     if (canvas_obj == NULL) return;
 
     if (visible) {
-
-        // Grab the internal memory right before showing the canvas
+        // MEMORY POLICY: Grab the internal memory array right before entering/showing sketching screen
         if (!allocate_canvas_buffer_if_needed()) return;
         
-        // Link the freshly allocated buffer back to the canvas widget
+        // Link the freshly allocated buffer cleanly back to the canvas widget structure
         lv_canvas_set_buffer(canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
-        memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE); // Clear it white
+        memset(canvas_buffer, 0xFF, CANVAS_BYTE_SIZE); // Clear it white natively
 
         lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_move_foreground(canvas_obj);
     } else {
+        // 1. Visually hide the widgets FIRST so LVGL doesn't compute rendering boundaries on them
         lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
+        
+        if (viewer_canvas_obj != NULL) {
+            lv_obj_add_flag(viewer_canvas_obj, LV_OBJ_FLAG_HIDDEN);
+        }
 
-        // Free it immediately when leaving sketching mode
+        // 2. MEMORY POLICY: Safely release the buffer back to heap the exact moment we leave sketching screen
         free_canvas_buffer();
     }
 }
@@ -172,13 +184,25 @@ void appc_sketch_trigger_refresh(void) {
             NULL, 
             2, 
             &xNotesLoaderTaskHandle, 
-            1 // Core 1 (Keeps SD I/O completely away from Core 0)
+            1 // Core 1 (Keeps SD card I/O completely away from Core 0)
         );
     }
 }
 
-void appc_sketch_init(void) {
+static void sketch_screen_lifecycle_event_cb(lv_event_t * e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    
+    if (code == LV_EVENT_SCREEN_LOAD_START) {
+        ESP_LOGI(TAG, "Entering Sketchpad Screen! Allocating buffer memory dynamically...");
+        appc_sketch_set_visible(true);
+    } 
+    else if (code == LV_EVENT_SCREEN_UNLOAD_START) {
+        ESP_LOGI(TAG, "Leaving Sketchpad Screen! Freeing buffer memory layout...");
+        appc_sketch_set_visible(false);
+    }
+}
 
+void appc_sketch_init(void) {
     if (canvas_obj != NULL) {
         return; 
     }
@@ -191,8 +215,6 @@ void appc_sketch_init(void) {
     canvas_obj = lv_canvas_create(parent);
     if(canvas_obj == NULL) return;
 
-    //lv_canvas_set_buffer(canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
-
     lv_coord_t x_ofs = lv_obj_get_x_aligned(ui_Panel4);
     lv_coord_t y_ofs = lv_obj_get_y_aligned(ui_Panel4);
     lv_obj_align(canvas_obj, LV_ALIGN_CENTER, x_ofs, y_ofs);
@@ -201,7 +223,6 @@ void appc_sketch_init(void) {
     if (ui_SketchViewPanel != NULL) {
         viewer_canvas_obj = lv_canvas_create(ui_SketchViewPanel);
         if (viewer_canvas_obj != NULL) {
-            //lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
             lv_obj_set_size(viewer_canvas_obj, CANVAS_WIDTH, CANVAS_HEIGHT);
             lv_obj_align(viewer_canvas_obj, LV_ALIGN_CENTER, 0, 0);
             lv_obj_clear_flag(ui_SketchViewPanel, LV_OBJ_FLAG_SCROLLABLE);
@@ -219,13 +240,16 @@ void appc_sketch_init(void) {
     lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_SCROLLABLE);
-    //lv_obj_move_foreground(canvas_obj);
 
     lv_obj_add_event_cb(canvas_obj, sketch_event_cb, LV_EVENT_ALL, NULL);
+
+    if (ui_Sketchpad != NULL) {
+        lv_obj_add_event_cb(ui_Sketchpad, sketch_screen_lifecycle_event_cb, LV_EVENT_ALL, NULL);
+    }
     
-    // Kickoff initial generation safely
+    // Kick off initial file table generation safely
     appc_sketch_trigger_refresh();
-    ESP_LOGI(TAG, "Sketchpad Dynamic Init Successful");
+    ESP_LOGI(TAG, "Sketchpad Struct Init Successful without memory allocation footprint");
 }
 
 void save_canvas_to_bmp(const char *filename) {
@@ -260,7 +284,9 @@ void save_canvas_to_bmp(const char *filename) {
 void appc_sketch_save(lv_event_t * e){
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_CLICKED) {
-        appc_sketch_set_visible(false);
+        // Keep memory alive during file configuration keyboard interactions
+        lv_obj_add_flag(canvas_obj, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(canvas_obj, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_clear_flag(ui_NameKeyboard, LV_OBJ_FLAG_HIDDEN); 
     }
 }
@@ -268,6 +294,7 @@ void appc_sketch_save(lv_event_t * e){
 void appc_note_cancel(lv_event_t * e){
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_CLICKED) {
+        lv_obj_add_flag(ui_NameKeyboard, LV_OBJ_FLAG_HIDDEN);
         appc_sketch_set_visible(true); 
         appc_sketch_clear();
     }
@@ -288,9 +315,12 @@ void appc_note_save(lv_event_t * e){
 
         save_canvas_to_bmp(full_path);
 
-        appc_sketch_trigger_refresh();
-        appc_sketch_clear();
-        appc_sketch_set_visible(true); 
+        // Turn keyboard visibility off
+        lv_obj_add_flag(ui_NameKeyboard, LV_OBJ_FLAG_HIDDEN);
+
+        // Refresh dynamic list contents and clean up memory layout safely
+        //appc_sketch_trigger_refresh();
+        appc_sketch_set_visible(false); 
     }
 }
 
@@ -358,15 +388,16 @@ static void dynamic_row_click_cb(lv_event_t * e) {
 
             if (!allocate_canvas_buffer_if_needed()) return;
 
-            // Link it to the viewer widget
+            // Link it safely to the viewer widget
             lv_canvas_set_buffer(viewer_canvas_obj, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_ALPHA_1BIT);
+            lv_obj_clear_flag(viewer_canvas_obj, LV_OBJ_FLAG_HIDDEN);
 
             if (load_bmp_to_canvas(selected_note_path, canvas_buffer, viewer_canvas_obj)) {
                 lv_obj_clear_flag(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_move_foreground(ui_NotesViewPanel);
-            }else {
-                // If the file loading failed, clean memory up right away
-                free_canvas_buffer();
+            } else {
+                // If the file loading failed, clear memory up immediately
+                appc_sketch_set_visible(false);
             }
         }
     }
@@ -410,7 +441,6 @@ static void notes_loader_worker_task(void *pvParameters) {
 static void appc_sketch_create_individual_row(int index) {
     int start_y = -113; 
     int row_height = 40; 
-    // Fix positioning structure calculation to strictly follow the current sequential index
     int current_y = start_y + (index * row_height); 
 
     lv_obj_t * new_btn = lv_btn_create(ui_NotesDisplayPanel);
@@ -443,7 +473,6 @@ static void appc_sketch_create_individual_row(int index) {
         lv_obj_set_style_text_color(label, lv_color_hex(0x120000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(label, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-        
     }
 
     lv_obj_t * edit_btn = lv_btn_create(new_btn);
@@ -461,11 +490,8 @@ static void appc_sketch_create_individual_row(int index) {
         lv_obj_set_style_border_width(edit_btn, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_border_side(edit_btn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
         
-        // CRITICAL: Remove default button padding so text can center in a small 32x32 box
         lv_obj_set_style_pad_all(edit_btn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-        
         lv_obj_add_event_cb(edit_btn, dynamic_edit_click_cb, LV_EVENT_CLICKED, NULL);
-
     }
 
     lv_obj_add_event_cb(new_btn, dynamic_row_click_cb, LV_EVENT_CLICKED, NULL);
@@ -482,7 +508,6 @@ static void appc_sketch_create_individual_row(int index) {
 static void appc_sketch_async_row_painter(void * param) {
     int target_index = (int)(uintptr_t)param;
 
-    // If we are starting at row 0, clear out the old elements first!
     if (target_index == 0) {
         ESP_LOGI(TAG, "Updating LVGL objects smoothly via safe Async Chain...");
         for(int i = 0; i < note_count; i++) {
@@ -494,32 +519,25 @@ static void appc_sketch_async_row_painter(void * param) {
         note_count = 0;
     }
 
-    // Paint ONLY the single row requested for this frame call!
     if (target_index >= 0 && target_index < fetched_note_count) {
         appc_sketch_create_individual_row(target_index);
     }
 }
 
-
 void appc_sketch_check_async_trigger(void) {
-    // Keep track of which row we need to paint across main loop frames
     static int current_paint_index = -1;
 
-    // 1. If the background thread just set the flag, reset our painter tracking index to 0
     if (notes_data_ready) {
-        notes_data_ready = false; // Consume flag context
-        current_paint_index = 0;   // Start rendering row 0
+        notes_data_ready = false; 
+        current_paint_index = 0;   
     }
 
-    // 2. If we are currently in the middle of a painting sequence
     if (current_paint_index >= 0) {
         if (current_paint_index < fetched_note_count) {
-            // Safely schedule the single row painter
             lv_async_call(appc_sketch_async_row_painter, (void*)(uintptr_t)current_paint_index);
-            current_paint_index++; // Advance to the next row for the next frame loop
+            current_paint_index++; 
         } else {
-            // We finished drawing all rows completely!
-            current_paint_index = -1; // Reset tracking state until next refresh
+            current_paint_index = -1; 
             
             if(ui_NoteTemplate != NULL) {
                 lv_obj_add_flag(ui_NoteTemplate, LV_OBJ_FLAG_HIDDEN);

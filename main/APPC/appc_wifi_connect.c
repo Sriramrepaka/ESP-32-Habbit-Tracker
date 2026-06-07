@@ -22,40 +22,78 @@ static const char *TAG = "APPC_WIFI";
 appc_wifi_status_t current_wifi_status = WIFI_STATUS_DISCONNECTED;
 
 void appc_wifi_ui_populate(void) {
-
-    uint16_t number = DEFAULT_SCAN_LIST_SIZE; // Set a reasonable limit
-    wifi_ap_record_t ap_info[DEFAULT_SCAN_LIST_SIZE];
+    uint16_t number = DEFAULT_SCAN_LIST_SIZE; 
     uint16_t ap_count = 0;
 
-    // 1. Get the records from the driver
+    // 1. Check how many networks the driver found
     esp_wifi_scan_get_ap_num(&ap_count);
-    esp_err_t res = esp_wifi_scan_get_ap_records(&number, ap_info);
 
-    if (res != ESP_OK || ap_count == 0) {
+    if (ap_count == 0) {
         ESP_LOGI(TAG, "No networks found.");
+        is_wifi_busy = false;
         return;
     }
 
-    app_wifi_auto_connect(ap_info, number);
-    
-    if(lv_obj_get_screen(ui_uiWifiList) != lv_scr_act()) {
-            ESP_LOGI(TAG,"Not on WIFI screen, Not populating UI");
-            is_wifi_busy = false;
-            return; 
+    // 2. STACK OVERFLOW PROTECTION: Allocate the 1.2KB array from the Heap instead of the Stack
+    wifi_ap_record_t *ap_info = malloc(sizeof(wifi_ap_record_t) * DEFAULT_SCAN_LIST_SIZE);
+    if (ap_info == NULL) {
+        ESP_LOGE(TAG, "CRITICAL: Out of memory space to allocate Wi-Fi scan records buffer!");
+        is_wifi_busy = false;
+        return;
     }
 
+    // 3. Fetch the records into our safe heap pointer
+    esp_err_t res = esp_wifi_scan_get_ap_records(&number, ap_info);
+    if (res != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get AP records from driver.");
+        free(ap_info); 
+        is_wifi_busy = false;
+        return;
+    }
+
+    // 4. Run auto-connect processing using our heap reference
+    app_wifi_auto_connect(ap_info, number);
+    
+    // ====================================================================
+    // 5. CONNECTING STATE CHECK (NEW / CRITICAL)
+    // If auto-connect successfully engaged connection protocols, abort 
+    // redrawing alternative choices immediately to protect layout memory.
+    // ====================================================================
+    if (appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTING) {
+        ESP_LOGI(TAG, "Auto-connect active (WIFI_STATUS_CONNECTING). Aborting UI rebuild.");
+        free(ap_info);
+        is_wifi_busy = false;
+        return;
+    }
+
+    // 6. Screen boundary validation check
+    if (ui_uiWifiList == NULL || lv_obj_get_screen(ui_uiWifiList) != lv_scr_act()) {
+        ESP_LOGI(TAG, "Not actively viewing Wi-Fi screen. Skipping UI population.");
+        free(ap_info); // Clean up allocated memory space before exiting
+        is_wifi_busy = false;
+        return; 
+    }
+
+    // 7. Clear and populate the list object container
     lv_obj_clean(ui_uiWifiList);
 
     for (int i = 0; i < number; i++) {
-
-        vTaskDelay(pdMS_TO_TICKS(1));
+        // ====================================================================
+        // REMOVED vTaskDelay: Running task yields inside an active LVGL 
+        // main thread queue execution causes thread sync issues.
+        // ====================================================================
 
         lv_obj_t * new_btn = lv_btn_create(ui_uiWifiList);
+        if (new_btn == NULL) {
+            ESP_LOGW(TAG, "Failed to allocate button resource for entry index %d", i);
+            continue;
+        }
+
         lv_obj_set_height(new_btn, 24);
         lv_obj_set_width(new_btn, lv_pct(100));
         lv_obj_set_align(new_btn, LV_ALIGN_CENTER);
-        lv_obj_add_flag(new_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-        lv_obj_clear_flag(new_btn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+        lv_obj_add_flag(new_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS); 
+        lv_obj_clear_flag(new_btn, LV_OBJ_FLAG_SCROLLABLE);      
         lv_obj_add_flag(new_btn, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_set_style_bg_color(new_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(new_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -67,21 +105,28 @@ void appc_wifi_ui_populate(void) {
         lv_obj_set_style_shadow_width(new_btn, 0, 0);
 
         lv_obj_t * icon = lv_label_create(new_btn);
-        lv_label_set_text(icon, LV_SYMBOL_WIFI);
-        lv_obj_set_style_text_font(icon, &lv_font_montserrat_14, 0);
-        lv_obj_clear_flag(icon, LV_OBJ_FLAG_EVENT_BUBBLE);
-        lv_obj_align(icon, LV_ALIGN_LEFT_MID, 10, 0);
+        if (icon != NULL) {
+            lv_label_set_text(icon, LV_SYMBOL_WIFI);
+            lv_obj_set_style_text_font(icon, &lv_font_montserrat_14, 0);
+            lv_obj_clear_flag(icon, LV_OBJ_FLAG_EVENT_BUBBLE);
+            lv_obj_align(icon, LV_ALIGN_LEFT_MID, 10, 0);
+        }
 
         lv_obj_t * ssid_label = lv_label_create(new_btn);
-        lv_label_set_text(ssid_label, (char *)ap_info[i].ssid);
-        lv_obj_clear_flag(ssid_label, LV_OBJ_FLAG_EVENT_BUBBLE);
-        lv_obj_align(ssid_label, LV_ALIGN_LEFT_MID, 40, 0);
+        if (ssid_label != NULL) {
+            lv_label_set_text(ssid_label, (char *)ap_info[i].ssid);
+            lv_obj_clear_flag(ssid_label, LV_OBJ_FLAG_EVENT_BUBBLE);
+            lv_obj_align(ssid_label, LV_ALIGN_LEFT_MID, 40, 0);
+        }
 
         lv_obj_add_event_cb(new_btn, ui_event_wifi_item_clicked, LV_EVENT_CLICKED, NULL);
     }
 
+    // 8. CLEANUP: Release the temporary memory back to system heap
+    free(ap_info);
+    
     is_wifi_busy = false;
-    ESP_LOGI(TAG,"Finished wifi scan");
+    ESP_LOGI(TAG, "Finished wifi scan safely without stack errors");
 }
 
 void wifi_wait_and_update_task(void * pvParameters) {
@@ -283,8 +328,6 @@ void app_wifi_enable_disable(lv_event_t * e) {
 
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
-
-    
 
     if(code == LV_EVENT_VALUE_CHANGED){
 
