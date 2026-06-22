@@ -15,6 +15,7 @@ extern void ui_Settings_screen_init(void);
 extern void ui_Settings_screen_destroy(void);
 extern void ui_event_Settings(lv_event_t * e);
 extern lv_obj_t * ui_Settings;
+extern void ui_event_Panel2(lv_event_t * e);
 extern lv_obj_t * ui_Panel2;
 extern lv_obj_t * ui_Label2;
 extern void ui_event_WifiEnableSwitch(lv_event_t * e);

@@ -48,16 +48,6 @@ void ui_event_NoteNameCancelBtn(lv_event_t * e)
     }
 }
 
-void ui_event_NoteNameOkBtn(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_NotesNamePanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-        _ui_screen_change(&ui_Clock, LV_SCR_LOAD_ANIM_MOVE_TOP, 500, 0, &ui_Clock_screen_init);
-    }
-}
-
 // build funtions
 
 void ui_Sketchpad_screen_init(void)
@@ -81,6 +71,7 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_set_x(ui_Panel4, 0);
     lv_obj_set_y(ui_Panel4, 11);
     lv_obj_set_align(ui_Panel4, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Panel4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_border_color(ui_Panel4, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Panel4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Panel4, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -242,7 +233,6 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_add_event_cb(ui_SketchCloseBtn, ui_event_SketchCloseBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SketchSaveBtn, ui_event_SketchSaveBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, ui_event_NoteNameCancelBtn, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_NoteNameOkBtn, ui_event_NoteNameOkBtn, LV_EVENT_ALL, NULL);
     lv_keyboard_set_textarea(ui_NameKeyboard, ui_TextArea3);
 
 }

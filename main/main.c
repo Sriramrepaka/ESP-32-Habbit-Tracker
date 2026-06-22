@@ -66,8 +66,6 @@ void app_main(void)
     
     while (1) {
 
-        appc_sketch_check_async_trigger();
-
         lv_timer_handler(); 
         
         vTaskDelay(pdMS_TO_TICKS(10));

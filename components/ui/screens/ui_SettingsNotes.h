@@ -13,6 +13,7 @@ extern "C" {
 // SCREEN: ui_SettingsNotes
 extern void ui_SettingsNotes_screen_init(void);
 extern void ui_SettingsNotes_screen_destroy(void);
+extern void ui_event_SettingsNotes(lv_event_t * e);
 extern lv_obj_t * ui_SettingsNotes;
 extern lv_obj_t * ui_Panel7;
 extern lv_obj_t * ui_NotesDisplayPanel;

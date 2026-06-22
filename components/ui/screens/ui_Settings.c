@@ -29,6 +29,15 @@ void ui_event_Settings(lv_event_t * e)
     }
 }
 
+void ui_event_Panel2(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(&ui_Wifimenu, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_Wifimenu_screen_init);
+    }
+}
+
 void ui_event_WifiEnableSwitch(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -146,6 +155,7 @@ void ui_Settings_screen_init(void)
     lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_add_event_cb(ui_WifiEnableSwitch, ui_event_WifiEnableSwitch, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Panel2, ui_event_Panel2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel6, ui_event_Panel6, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Settings, ui_event_Settings, LV_EVENT_ALL, NULL);
 
