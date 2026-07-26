@@ -66,8 +66,8 @@ void ui_Sketchpad_screen_init(void)
                                            _ui_theme_alpha_panel_blue);
 
     ui_Panel4 = lv_obj_create(ui_Sketchpad);
-    lv_obj_set_width(ui_Panel4, 218);
-    lv_obj_set_height(ui_Panel4, 291);
+    lv_obj_set_width(ui_Panel4, 224);
+    lv_obj_set_height(ui_Panel4, 288);
     lv_obj_set_x(ui_Panel4, 0);
     lv_obj_set_y(ui_Panel4, 11);
     lv_obj_set_align(ui_Panel4, LV_ALIGN_CENTER);
