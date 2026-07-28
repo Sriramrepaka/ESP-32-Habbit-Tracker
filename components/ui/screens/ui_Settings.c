@@ -6,12 +6,12 @@
 #include "../ui.h"
 
 lv_obj_t * ui_Settings = NULL;
-lv_obj_t * ui_Panel2 = NULL;
+lv_obj_t * ui_settingsWifiPanel = NULL;
 lv_obj_t * ui_Label2 = NULL;
 lv_obj_t * ui_WifiEnableSwitch = NULL;
 lv_obj_t * ui_Panel8 = NULL;
 lv_obj_t * ui_InternetIndicator = NULL;
-lv_obj_t * ui_Panel6 = NULL;
+lv_obj_t * ui_settingsNotesPanel = NULL;
 lv_obj_t * ui_Label7 = NULL;
 lv_obj_t * ui_Image4 = NULL;
 // event funtions
@@ -29,7 +29,7 @@ void ui_event_Settings(lv_event_t * e)
     }
 }
 
-void ui_event_Panel2(lv_event_t * e)
+void ui_event_settingsWifiPanel(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -38,17 +38,7 @@ void ui_event_Panel2(lv_event_t * e)
     }
 }
 
-void ui_event_WifiEnableSwitch(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-
-    if(event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target, LV_STATE_CHECKED)) {
-        _ui_screen_change(&ui_Wifimenu, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_Wifimenu_screen_init);
-    }
-}
-
-void ui_event_Panel6(lv_event_t * e)
+void ui_event_settingsNotesPanel(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -68,15 +58,15 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_bg_img_src(ui_Settings, &ui_img_pattern_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Settings, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel2 = lv_obj_create(ui_Settings);
-    lv_obj_set_width(ui_Panel2, 230);
-    lv_obj_set_height(ui_Panel2, 50);
-    lv_obj_set_x(ui_Panel2, 0);
-    lv_obj_set_y(ui_Panel2, -126);
-    lv_obj_set_align(ui_Panel2, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Panel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_settingsWifiPanel = lv_obj_create(ui_Settings);
+    lv_obj_set_width(ui_settingsWifiPanel, 230);
+    lv_obj_set_height(ui_settingsWifiPanel, 50);
+    lv_obj_set_x(ui_settingsWifiPanel, 0);
+    lv_obj_set_y(ui_settingsWifiPanel, -126);
+    lv_obj_set_align(ui_settingsWifiPanel, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_settingsWifiPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label2 = lv_label_create(ui_Panel2);
+    ui_Label2 = lv_label_create(ui_settingsWifiPanel);
     lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label2, -78);
@@ -87,7 +77,7 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_text_opa(ui_Label2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_WifiEnableSwitch = lv_switch_create(ui_Panel2);
+    ui_WifiEnableSwitch = lv_switch_create(ui_settingsWifiPanel);
     lv_obj_set_width(ui_WifiEnableSwitch, 50);
     lv_obj_set_height(ui_WifiEnableSwitch, 25);
     lv_obj_set_x(ui_WifiEnableSwitch, 78);
@@ -100,7 +90,7 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_bg_color(ui_WifiEnableSwitch, lv_color_hex(0x4FA4EA), LV_PART_KNOB | LV_STATE_CHECKED);
     lv_obj_set_style_bg_opa(ui_WifiEnableSwitch, 255, LV_PART_KNOB | LV_STATE_CHECKED);
 
-    ui_Panel8 = lv_obj_create(ui_Panel2);
+    ui_Panel8 = lv_obj_create(ui_settingsWifiPanel);
     lv_obj_set_width(ui_Panel8, 20);
     lv_obj_set_height(ui_Panel8, 20);
     lv_obj_set_x(ui_Panel8, -37);
@@ -125,15 +115,15 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_bg_color(ui_InternetIndicator, lv_color_hex(0x32B82D), LV_PART_MAIN | LV_STATE_PRESSED);
     lv_obj_set_style_bg_opa(ui_InternetIndicator, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
-    ui_Panel6 = lv_obj_create(ui_Settings);
-    lv_obj_set_width(ui_Panel6, 230);
-    lv_obj_set_height(ui_Panel6, 50);
-    lv_obj_set_x(ui_Panel6, 0);
-    lv_obj_set_y(ui_Panel6, -67);
-    lv_obj_set_align(ui_Panel6, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Panel6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_settingsNotesPanel = lv_obj_create(ui_Settings);
+    lv_obj_set_width(ui_settingsNotesPanel, 230);
+    lv_obj_set_height(ui_settingsNotesPanel, 50);
+    lv_obj_set_x(ui_settingsNotesPanel, 0);
+    lv_obj_set_y(ui_settingsNotesPanel, -67);
+    lv_obj_set_align(ui_settingsNotesPanel, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_settingsNotesPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label7 = lv_label_create(ui_Panel6);
+    ui_Label7 = lv_label_create(ui_settingsNotesPanel);
     lv_obj_set_width(ui_Label7, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label7, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label7, -78);
@@ -144,7 +134,7 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_text_opa(ui_Label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label7, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Image4 = lv_img_create(ui_Panel6);
+    ui_Image4 = lv_img_create(ui_settingsNotesPanel);
     lv_img_set_src(ui_Image4, &ui_img_1880035939);
     lv_obj_set_width(ui_Image4, 32);
     lv_obj_set_height(ui_Image4, 32);
@@ -154,9 +144,8 @@ void ui_Settings_screen_init(void)
     lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    lv_obj_add_event_cb(ui_WifiEnableSwitch, ui_event_WifiEnableSwitch, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Panel2, ui_event_Panel2, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Panel6, ui_event_Panel6, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_settingsWifiPanel, ui_event_settingsWifiPanel, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_settingsNotesPanel, ui_event_settingsNotesPanel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Settings, ui_event_Settings, LV_EVENT_ALL, NULL);
 
 }
@@ -167,12 +156,12 @@ void ui_Settings_screen_destroy(void)
 
     // NULL screen variables
     ui_Settings = NULL;
-    ui_Panel2 = NULL;
+    ui_settingsWifiPanel = NULL;
     ui_Label2 = NULL;
     ui_WifiEnableSwitch = NULL;
     ui_Panel8 = NULL;
     ui_InternetIndicator = NULL;
-    ui_Panel6 = NULL;
+    ui_settingsNotesPanel = NULL;
     ui_Label7 = NULL;
     ui_Image4 = NULL;
 

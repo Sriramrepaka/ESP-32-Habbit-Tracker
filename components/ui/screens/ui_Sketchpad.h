@@ -15,7 +15,6 @@ extern void ui_Sketchpad_screen_init(void);
 extern void ui_Sketchpad_screen_destroy(void);
 extern lv_obj_t * ui_Sketchpad;
 extern lv_obj_t * ui_Panel5;
-extern lv_obj_t * ui_Panel4;
 extern void ui_event_SketchCloseBtn(lv_event_t * e);
 extern lv_obj_t * ui_SketchCloseBtn;
 extern lv_obj_t * ui_Label3;

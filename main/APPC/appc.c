@@ -36,8 +36,7 @@ void appc_wifi_ui_timer_cb(lv_timer_t * timer) {
 
     // 3. Apply the style to the Panel
     if(ui_InternetIndicator != NULL) {
-        lv_obj_set_style_bg_color(ui_InternetIndicator, color, LV_PART_MAIN | LV_STATE_DEFAULT);
-        //lv_obj_set_style_bg_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT); 
+        lv_obj_set_style_bg_color(ui_InternetIndicator, color, LV_PART_MAIN | LV_STATE_DEFAULT); 
         
         // Optional: Add a log to see the UI update in real-time
         ESP_LOGI(TAG, "Wifi colour updated: %d", status);
@@ -134,5 +133,6 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_SketchSaveBtn, appc_sketch_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_settingsWifiPanel, appc_wifi_panel_click_cb, LV_EVENT_CLICKED, NULL);
 
 }

@@ -55,23 +55,21 @@ void appc_wifi_ui_populate(void) {
     app_wifi_auto_connect(ap_info, number);
     
     // ====================================================================
-    // 5. CONNECTING STATE CHECK (NEW / CRITICAL)
-    // If auto-connect successfully engaged connection protocols, abort 
-    // redrawing alternative choices immediately to protect layout memory.
+    // 5 & 6. SCREEN BOUNDARY & CONNECTING STATE CHECK
     // ====================================================================
-    if (appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTING) {
-        ESP_LOGI(TAG, "Auto-connect active (WIFI_STATUS_CONNECTING). Aborting UI rebuild.");
-        free(ap_info);
-        is_wifi_busy = false;
-        return;
-    }
+    bool is_on_wifi_screen = (ui_uiWifiList != NULL && lv_obj_get_screen(ui_uiWifiList) == lv_scr_act());
+    bool is_connecting = (appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTING);
 
-    // 6. Screen boundary validation check
-    if (ui_uiWifiList == NULL || lv_obj_get_screen(ui_uiWifiList) != lv_scr_act()) {
-        ESP_LOGI(TAG, "Not actively viewing Wi-Fi screen. Skipping UI population.");
-        free(ap_info); // Clean up allocated memory space before exiting
+    // If the user is NOT looking at the WiFi screen, abort the UI build.
+    if (!is_on_wifi_screen) {
+        if (is_connecting) {
+            ESP_LOGI(TAG, "Auto-connect active in background. Aborting UI rebuild.");
+        } else {
+            ESP_LOGI(TAG, "Not actively viewing Wi-Fi screen. Skipping UI population.");
+        }
+        free(ap_info); // Safely clean up
         is_wifi_busy = false;
-        return; 
+        return; // CRITICAL: Actually exit the function so we don't use freed memory
     }
 
     // 7. Clear and populate the list object container
@@ -257,6 +255,14 @@ esp_err_t app_nvs_load_credentials(char* ssid, char* password) {
 }
 
 void app_wifi_auto_connect(wifi_ap_record_t * ap_info, uint16_t count) {
+    
+    if( appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTED_INTERNET ||
+        appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTED_LOCAL ||
+        appc_wifi_update_ui_status_get() == WIFI_STATUS_CONNECTING)
+    {
+        return;
+    }
+    
     //nvs_handle_t my_handle;
     char saved_ssid[32] = {0};
     char saved_pass[64] = {0};
@@ -320,8 +326,21 @@ void app_wifi_close(lv_event_t * e) {
     }
 }
 
-void app_deferred_scan_cb(lv_timer_t * t) {
+void appc_wifi_deferred_scan_cb(lv_timer_t * t) {
     app_wifi_scan();
+}
+
+void appc_wifi_deferred_scan_refresh_cb(lv_timer_t * t) {
+    app_wifi_scan_refresh(NULL);
+}
+
+void appc_wifi_panel_click_cb(lv_event_t * e) {
+    // When the panel is clicked, start a 500ms timer
+    // Adjust the '500' to match the exact duration of your screen animation!
+    lv_timer_t * timer = lv_timer_create(appc_wifi_deferred_scan_refresh_cb, 500, NULL);
+    
+    // Tell the timer to only run exactly once, then destroy itself
+    lv_timer_set_repeat_count(timer, 1); 
 }
 
 void app_wifi_enable_disable(lv_event_t * e) {
@@ -349,10 +368,10 @@ void app_wifi_enable_disable(lv_event_t * e) {
 
             ESP_LOGI(TAG, "Switching ON: Re-enabling WiFi...");
 
-            _ui_screen_change(&ui_Wifimenu, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_Wifimenu_screen_init);
+            //_ui_screen_change(&ui_Wifimenu, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_Wifimenu_screen_init);
 
             esp_err_t err = esp_wifi_start();
-            printf("WiFi Start Result: %s\n", esp_err_to_name(err));
+            ESP_LOGI(TAG, "WiFi Start Result: %s\n", esp_err_to_name(err));
             //app_wifi_scan_refresh(NULL);
             if (err == ESP_OK || err == ESP_ERR_WIFI_STATE) {
         
@@ -360,7 +379,7 @@ void app_wifi_enable_disable(lv_event_t * e) {
                 
                 if(is_wifi_busy) { 
                     ESP_LOGI(TAG, "Event didn't fire (Already Started). Manual Scan trigger.");
-                    lv_timer_t * timer = lv_timer_create(app_deferred_scan_cb, 500, NULL);
+                    lv_timer_t * timer = lv_timer_create(appc_wifi_deferred_scan_cb, 500, NULL);
                     lv_timer_set_repeat_count(timer, 1);
                 }
             }

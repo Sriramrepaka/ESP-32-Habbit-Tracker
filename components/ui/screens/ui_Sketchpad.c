@@ -7,7 +7,6 @@
 
 lv_obj_t * ui_Sketchpad = NULL;
 lv_obj_t * ui_Panel5 = NULL;
-lv_obj_t * ui_Panel4 = NULL;
 lv_obj_t * ui_SketchCloseBtn = NULL;
 lv_obj_t * ui_Label3 = NULL;
 lv_obj_t * ui_SketchSaveBtn = NULL;
@@ -64,17 +63,6 @@ void ui_Sketchpad_screen_init(void)
                                            _ui_theme_color_panel_blue);
     ui_object_set_themeable_style_property(ui_Panel5, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
                                            _ui_theme_alpha_panel_blue);
-
-    ui_Panel4 = lv_obj_create(ui_Sketchpad);
-    lv_obj_set_width(ui_Panel4, 224);
-    lv_obj_set_height(ui_Panel4, 288);
-    lv_obj_set_x(ui_Panel4, 0);
-    lv_obj_set_y(ui_Panel4, 11);
-    lv_obj_set_align(ui_Panel4, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Panel4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_border_color(ui_Panel4, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Panel4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_Panel4, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SketchCloseBtn = lv_btn_create(ui_Sketchpad);
     lv_obj_set_width(ui_SketchCloseBtn, 48);
@@ -244,7 +232,6 @@ void ui_Sketchpad_screen_destroy(void)
     // NULL screen variables
     ui_Sketchpad = NULL;
     ui_Panel5 = NULL;
-    ui_Panel4 = NULL;
     ui_SketchCloseBtn = NULL;
     ui_Label3 = NULL;
     ui_SketchSaveBtn = NULL;

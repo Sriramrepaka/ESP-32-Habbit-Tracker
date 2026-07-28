@@ -302,11 +302,6 @@ void appc_sketch_init(void) {
         return;
     }
 
-    // Hide Panel4 so it doesn't overlap the canvas
-    if (ui_Panel4 != NULL) {
-        lv_obj_add_flag(ui_Panel4, LV_OBJ_FLAG_HIDDEN);
-    }
-
     // We MUST attach to Panel5 so it appears on the correct screen when you navigate to it
     if (ui_Panel5 == NULL) {
         ESP_LOGE(TAG, "Panel5 is NULL, cannot create canvas!");
@@ -355,7 +350,7 @@ void appc_sketch_init(void) {
 
     lv_canvas_set_buffer(canvas, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
     lv_canvas_fill_bg(canvas, lv_color_white(), LV_OPA_COVER);
-        
+
     lv_obj_set_size(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
     
     // Position exactly in the center with your requested +11 offset
