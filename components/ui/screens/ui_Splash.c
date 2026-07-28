@@ -28,24 +28,29 @@ void ui_Splash_screen_init(void)
 {
     ui_Splash = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Splash, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_Splash, &ui_img_footer_lodyas_short_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_opa(ui_Splash, 115, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_tiled(ui_Splash, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Demo = ui_Small_Label_create(ui_Splash);
     lv_obj_set_x(ui_Demo, 0);
     lv_obj_set_y(ui_Demo, 75);
     lv_obj_set_align(ui_Demo, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Demo, "v0.0");
-    lv_obj_set_style_text_color(ui_Demo, lv_color_hex(0x9C9CD9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_Demo, "v0.1");
+    lv_obj_set_style_text_color(ui_Demo, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Demo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Smart_Gadget = ui_Small_Label_create(ui_Splash);
     lv_obj_set_x(ui_Smart_Gadget, 0);
     lv_obj_set_y(ui_Smart_Gadget, 50);
     lv_obj_set_align(ui_Smart_Gadget, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Smart_Gadget, "Device");
-    lv_obj_set_style_text_color(ui_Smart_Gadget, lv_color_hex(0x000746), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Smart_Gadget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_Smart_Gadget, "Habbit tracker");
+    ui_object_set_themeable_style_property(ui_Smart_Gadget, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+                                           _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_Smart_Gadget, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+                                           _ui_theme_alpha_Neon_orange);
 
     ui_SLS_Logo = lv_img_create(ui_Splash);
     lv_img_set_src(ui_SLS_Logo, &ui_img_check_png);

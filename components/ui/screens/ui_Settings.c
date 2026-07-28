@@ -55,7 +55,7 @@ void ui_Settings_screen_init(void)
     lv_obj_clear_flag(ui_Settings, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_Settings, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Settings, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_Settings, &ui_img_pattern_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_Settings, &ui_img_carbon_fibre_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Settings, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_settingsWifiPanel = lv_obj_create(ui_Settings);
@@ -65,6 +65,8 @@ void ui_Settings_screen_init(void)
     lv_obj_set_y(ui_settingsWifiPanel, -126);
     lv_obj_set_align(ui_settingsWifiPanel, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_settingsWifiPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_settingsWifiPanel, lv_color_hex(0x1C0D04), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_settingsWifiPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label2 = lv_label_create(ui_settingsWifiPanel);
     lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   /// 1
@@ -73,8 +75,10 @@ void ui_Settings_screen_init(void)
     lv_obj_set_y(ui_Label2, 0);
     lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label2, "WIFI");
-    lv_obj_set_style_text_color(ui_Label2, lv_color_hex(0x0A0909), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Label2, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+                                           _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_Label2, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+                                           _ui_theme_alpha_Neon_orange);
     lv_obj_set_style_text_font(ui_Label2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_WifiEnableSwitch = lv_switch_create(ui_settingsWifiPanel);
@@ -122,6 +126,8 @@ void ui_Settings_screen_init(void)
     lv_obj_set_y(ui_settingsNotesPanel, -67);
     lv_obj_set_align(ui_settingsNotesPanel, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_settingsNotesPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_settingsNotesPanel, lv_color_hex(0x1C0D04), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_settingsNotesPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label7 = lv_label_create(ui_settingsNotesPanel);
     lv_obj_set_width(ui_Label7, LV_SIZE_CONTENT);   /// 1
@@ -130,12 +136,14 @@ void ui_Settings_screen_init(void)
     lv_obj_set_y(ui_Label7, 0);
     lv_obj_set_align(ui_Label7, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label7, "Notes");
-    lv_obj_set_style_text_color(ui_Label7, lv_color_hex(0x0A0909), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Label7, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+                                           _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_Label7, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+                                           _ui_theme_alpha_Neon_orange);
     lv_obj_set_style_text_font(ui_Label7, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Image4 = lv_img_create(ui_settingsNotesPanel);
-    lv_img_set_src(ui_Image4, &ui_img_1880035939);
+    lv_img_set_src(ui_Image4, &ui_img_565810218);
     lv_obj_set_width(ui_Image4, 32);
     lv_obj_set_height(ui_Image4, 32);
     lv_obj_set_x(ui_Image4, 78);

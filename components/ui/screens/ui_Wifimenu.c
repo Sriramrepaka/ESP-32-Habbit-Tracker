@@ -82,13 +82,15 @@ void ui_Wifimenu_screen_init(void)
 {
     ui_Wifimenu = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Wifimenu, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_img_src(ui_Wifimenu, &ui_img_carbon_fibre_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_tiled(ui_Wifimenu, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel3 = lv_obj_create(ui_Wifimenu);
     lv_obj_set_width(ui_Panel3, 197);
     lv_obj_set_height(ui_Panel3, 289);
     lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Panel3, lv_color_hex(0xD9EAF0), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel3, lv_color_hex(0x4C4B49), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Panel3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_uiWifiList = lv_obj_create(ui_Panel3);
@@ -138,7 +140,7 @@ void ui_Wifimenu_screen_init(void)
     lv_obj_set_x(ui_SelectWifi, 9);
     lv_obj_set_y(ui_SelectWifi, 9);
     lv_label_set_text(ui_SelectWifi, "Select wifi");
-    lv_obj_set_style_text_color(ui_SelectWifi, lv_color_hex(0x080000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_SelectWifi, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SelectWifi, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_WifiCloseButton = lv_btn_create(ui_Panel3);
@@ -193,10 +195,8 @@ void ui_Wifimenu_screen_init(void)
     lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_Image2, 75);
-    ui_object_set_themeable_style_property(ui_Image2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_click_blue);
-    ui_object_set_themeable_style_property(ui_Image2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_click_blue);
+    lv_obj_set_style_bg_color(ui_Image2, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(ui_Image2, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
     ui_uiPassPopup = lv_obj_create(ui_Wifimenu);
     lv_obj_set_width(ui_uiPassPopup, 232);
@@ -258,10 +258,8 @@ void ui_Wifimenu_screen_init(void)
     lv_obj_set_style_border_opa(ui_WifiConnectButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_WifiConnectButton, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_WifiConnectButton, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_WifiConnectButton, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_click_blue);
-    ui_object_set_themeable_style_property(ui_WifiConnectButton, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_click_blue);
+    lv_obj_set_style_bg_color(ui_WifiConnectButton, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(ui_WifiConnectButton, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
     ui_Label5 = lv_label_create(ui_WifiConnectButton);
     lv_obj_set_width(ui_Label5, LV_SIZE_CONTENT);   /// 1

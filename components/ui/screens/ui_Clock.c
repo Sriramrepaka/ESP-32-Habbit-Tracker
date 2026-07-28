@@ -54,7 +54,9 @@ void ui_Clock_screen_init(void)
 {
     ui_Clock = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Clock, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_img_src(ui_Clock, &ui_img_pattern_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Clock, lv_color_hex(0x040000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Clock, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_Clock, &ui_img_dark_dotted2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Clock, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Clock_Panel = lv_obj_create(ui_Clock);
@@ -72,65 +74,89 @@ void ui_Clock_screen_init(void)
     lv_obj_set_x(ui_Dot1, -40);
     lv_obj_set_y(ui_Dot1, 15);
     lv_obj_set_align(ui_Dot1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_set_style_bg_color(ui_Dot1, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot2 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot2, -10);
     lv_obj_set_y(ui_Dot2, 50);
+    lv_obj_set_style_bg_color(ui_Dot2, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot3 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot3, 40);
     lv_obj_set_y(ui_Dot3, 15);
     lv_obj_set_align(ui_Dot3, LV_ALIGN_TOP_LEFT);
+    lv_obj_set_style_bg_color(ui_Dot3, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot4 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot4, 10);
     lv_obj_set_y(ui_Dot4, 50);
     lv_obj_set_align(ui_Dot4, LV_ALIGN_TOP_LEFT);
+    lv_obj_set_style_bg_color(ui_Dot4, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot5 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot5, 10);
     lv_obj_set_y(ui_Dot5, -50);
     lv_obj_set_align(ui_Dot5, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_set_style_bg_color(ui_Dot5, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot6 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot6, 40);
     lv_obj_set_y(ui_Dot6, -15);
     lv_obj_set_align(ui_Dot6, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_set_style_bg_color(ui_Dot6, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot7 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot7, -10);
     lv_obj_set_y(ui_Dot7, -50);
     lv_obj_set_align(ui_Dot7, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_style_bg_color(ui_Dot7, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Dot8 = ui_Clock_Dot_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Dot8, -40);
     lv_obj_set_y(ui_Dot8, -15);
     lv_obj_set_align(ui_Dot8, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_style_bg_color(ui_Dot8, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Dot8, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Clock_Number1 = ui_Small_Label_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Clock_Number1, 0);
     lv_obj_set_y(ui_Clock_Number1, 0);
+    lv_obj_set_style_text_color(ui_Clock_Number1, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Clock_Number1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Clock_Number2 = ui_Small_Label_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Clock_Number2, 0);
     lv_obj_set_y(ui_Clock_Number2, 0);
     lv_obj_set_align(ui_Clock_Number2, LV_ALIGN_BOTTOM_MID);
     lv_label_set_text(ui_Clock_Number2, "6");
+    lv_obj_set_style_text_color(ui_Clock_Number2, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Clock_Number2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Clock_Number3 = ui_Small_Label_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Clock_Number3, 0);
     lv_obj_set_y(ui_Clock_Number3, 0);
     lv_obj_set_align(ui_Clock_Number3, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Clock_Number3, "9");
+    lv_obj_set_style_text_color(ui_Clock_Number3, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Clock_Number3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Clock_Number4 = ui_Small_Label_create(ui_Clock_Panel);
     lv_obj_set_x(ui_Clock_Number4, 0);
     lv_obj_set_y(ui_Clock_Number4, 0);
     lv_obj_set_align(ui_Clock_Number4, LV_ALIGN_RIGHT_MID);
     lv_label_set_text(ui_Clock_Number4, "3");
+    lv_obj_set_style_text_color(ui_Clock_Number4, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Clock_Number4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Min = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Min, &ui_img_clock_min_png);
+    lv_img_set_src(ui_Min, &ui_img_min_new_png);
     lv_obj_set_width(ui_Min, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Min, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Min, LV_ALIGN_CENTER);
@@ -138,7 +164,7 @@ void ui_Clock_screen_init(void)
     lv_obj_clear_flag(ui_Min, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Hour = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Hour, &ui_img_clock_hour_png);
+    lv_img_set_src(ui_Hour, &ui_img_hour_new_png);
     lv_obj_set_width(ui_Hour, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Hour, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Hour, LV_ALIGN_CENTER);
@@ -146,7 +172,7 @@ void ui_Clock_screen_init(void)
     lv_obj_clear_flag(ui_Hour, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Sec = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Sec, &ui_img_clock_sec_png);
+    lv_img_set_src(ui_Sec, &ui_img_sec_new_png);
     lv_obj_set_width(ui_Sec, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Sec, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Sec, LV_ALIGN_CENTER);
@@ -162,7 +188,7 @@ void ui_Clock_screen_init(void)
     lv_obj_set_style_radius(ui_Clock_Center, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_Clock_Center, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Clock_Center, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Clock_Center, lv_color_hex(0x1937D2), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Clock_Center, lv_color_hex(0xFF5C00), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Clock_Center, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Clock_Center, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -173,15 +199,17 @@ void ui_Clock_screen_init(void)
     lv_obj_set_y(ui_Clock_Number, 15);
     lv_obj_set_align(ui_Clock_Number, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_Clock_Number, "09:25");
-    lv_obj_set_style_text_color(ui_Clock_Number, lv_color_hex(0x293062), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Clock_Number, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Clock_Number, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+                                           _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_Clock_Number, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+                                           _ui_theme_alpha_Neon_orange);
     lv_obj_set_style_text_font(ui_Clock_Number, &ui_font_Number, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Date = ui_Small_Label_create(ui_Clock);
     lv_obj_set_x(ui_Date, 0);
     lv_obj_set_y(ui_Date, 76);
     lv_label_set_text(ui_Date, "Syncing...");
-    lv_obj_set_style_text_color(ui_Date, lv_color_hex(0x9C9CD9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_Date, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Date, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);

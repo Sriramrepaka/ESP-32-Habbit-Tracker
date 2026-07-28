@@ -35,7 +35,7 @@ void ui_Alarm_screen_init(void)
     lv_obj_clear_flag(ui_Alarm, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_Alarm, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Alarm, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_Alarm, &ui_img_pattern_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_Alarm, &ui_img_dark_dotted2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Alarm, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Alarm_container = lv_obj_create(ui_Alarm);
@@ -50,42 +50,80 @@ void ui_Alarm_screen_init(void)
     lv_obj_set_y(ui_Set_alarm, 17);
     lv_obj_set_align(ui_Set_alarm, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_Set_alarm, "Set alarm");
-    lv_obj_set_style_text_color(ui_Set_alarm, lv_color_hex(0x000746), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Set_alarm, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Set_alarm, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+                                           _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_Set_alarm, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+                                           _ui_theme_alpha_Neon_orange);
 
     ui_Alarm_Comp = ui_Alarm_Comp_create(ui_Alarm_container);
     lv_obj_set_x(ui_Alarm_Comp, 0);
     lv_obj_set_y(ui_Alarm_Comp, 43);
+    lv_obj_set_style_border_color(ui_Alarm_Comp, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Alarm_Comp, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR, _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA, _ui_theme_alpha_Neon_orange);
+
+    lv_obj_set_style_text_color(ui_comp_get_child(ui_Alarm_Comp, UI_COMP_ALARM_COMP_PERIOD), lv_color_hex(0x8A3200),
+                                LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_comp_get_child(ui_Alarm_Comp, UI_COMP_ALARM_COMP_PERIOD), 255,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Alarm_Comp1 = ui_Alarm_Comp_create(ui_Alarm_container);
     lv_obj_set_x(ui_Alarm_Comp1, 0);
     lv_obj_set_y(ui_Alarm_Comp1, 128);
+    lv_obj_set_style_border_color(ui_Alarm_Comp1, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Alarm_Comp1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_ALARM_NUM2), "8:00");
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR, _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA, _ui_theme_alpha_Neon_orange);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_PERIOD), "Breakfast");
+    lv_obj_set_style_text_color(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_PERIOD), lv_color_hex(0x8A3200),
+                                LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_PERIOD), 255,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_state(ui_comp_get_child(ui_Alarm_Comp1, UI_COMP_ALARM_COMP_SWITCH1), LV_STATE_CHECKED);       /// States
 
     ui_Alarm_Comp2 = ui_Alarm_Comp_create(ui_Alarm_container);
     lv_obj_set_x(ui_Alarm_Comp2, 0);
     lv_obj_set_y(ui_Alarm_Comp2, 213);
+    lv_obj_set_style_border_color(ui_Alarm_Comp2, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Alarm_Comp2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp2, UI_COMP_ALARM_COMP_ALARM_NUM2), "9:30");
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp2, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR, _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp2, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA, _ui_theme_alpha_Neon_orange);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp2, UI_COMP_ALARM_COMP_PERIOD), "Yoga");
 
     ui_Alarm_Comp3 = ui_Alarm_Comp_create(ui_Alarm_container);
     lv_obj_set_x(ui_Alarm_Comp3, 0);
     lv_obj_set_y(ui_Alarm_Comp3, 298);
-    lv_obj_set_style_border_color(ui_Alarm_Comp3, lv_color_hex(0x293062), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Alarm_Comp3, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Alarm_Comp3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Alarm_Comp3, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_Alarm_Comp3, LV_BORDER_SIDE_NONE, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_ALARM_NUM2), "11:00");
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR, _ui_theme_color_Neon_orange);
+    ui_object_set_themeable_style_property(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_ALARM_NUM2),
+                                           LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA, _ui_theme_alpha_Neon_orange);
 
     lv_label_set_text(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_PERIOD), "Sleep");
+    lv_obj_set_style_text_color(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_PERIOD), lv_color_hex(0x8A3200),
+                                LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_comp_get_child(ui_Alarm_Comp3, UI_COMP_ALARM_COMP_PERIOD), 255,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Alarm, ui_event_Alarm, LV_EVENT_ALL, NULL);
 

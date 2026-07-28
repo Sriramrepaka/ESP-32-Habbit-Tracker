@@ -10,15 +10,13 @@
 extern "C" {
 #endif
 
-#define UI_THEME_COLOR_CLICK_BLUE 0
-#define UI_THEME_COLOR_CLICK_RED 1
-#define UI_THEME_COLOR_PANEL_BLUE 2
-#define UI_THEME_COLOR_PRESSED_BLUE 3
+#define UI_THEME_COLOR_CLICK_RED 0
+#define UI_THEME_COLOR_PANEL_BLUE 1
+#define UI_THEME_COLOR_PRESSED_BLUE 2
+#define UI_THEME_COLOR_FF5C00 3
+#define UI_THEME_COLOR_NEON_ORANGE 4
 
 #define UI_THEME_DEFAULT 0
-
-extern const ui_theme_variable_t _ui_theme_color_click_blue[1];
-extern const ui_theme_variable_t _ui_theme_alpha_click_blue[1];
 
 extern const ui_theme_variable_t _ui_theme_color_Click_red[1];
 extern const ui_theme_variable_t _ui_theme_alpha_Click_red[1];
@@ -28,6 +26,12 @@ extern const ui_theme_variable_t _ui_theme_alpha_panel_blue[1];
 
 extern const ui_theme_variable_t _ui_theme_color_Pressed_blue[1];
 extern const ui_theme_variable_t _ui_theme_alpha_Pressed_blue[1];
+
+extern const ui_theme_variable_t _ui_theme_color_FF5C00[1];
+extern const ui_theme_variable_t _ui_theme_alpha_FF5C00[1];
+
+extern const ui_theme_variable_t _ui_theme_color_Neon_orange[1];
+extern const ui_theme_variable_t _ui_theme_alpha_Neon_orange[1];
 
 extern const uint32_t * ui_theme_colors[1];
 extern const uint8_t * ui_theme_alphas[1];

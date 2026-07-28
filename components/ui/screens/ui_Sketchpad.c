@@ -59,10 +59,8 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_set_height(ui_Panel5, 320);
     lv_obj_set_align(ui_Panel5, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Panel5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    ui_object_set_themeable_style_property(ui_Panel5, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_panel_blue);
-    ui_object_set_themeable_style_property(ui_Panel5, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_panel_blue);
+    lv_obj_set_style_bg_img_src(ui_Panel5, &ui_img_dark_dotted2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_tiled(ui_Panel5, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SketchCloseBtn = lv_btn_create(ui_Sketchpad);
     lv_obj_set_width(ui_SketchCloseBtn, 48);
@@ -107,10 +105,8 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_set_style_border_opa(ui_SketchSaveBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_SketchSaveBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_SketchSaveBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_SketchSaveBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_click_blue);
-    ui_object_set_themeable_style_property(ui_SketchSaveBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_click_blue);
+    lv_obj_set_style_bg_color(ui_SketchSaveBtn, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(ui_SketchSaveBtn, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
     ui_Label8 = lv_label_create(ui_SketchSaveBtn);
     lv_obj_set_width(ui_Label8, LV_SIZE_CONTENT);   /// 1
@@ -182,10 +178,8 @@ void ui_Sketchpad_screen_init(void)
     lv_obj_set_style_border_opa(ui_NoteNameOkBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_NoteNameOkBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_NoteNameOkBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_NoteNameOkBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_click_blue);
-    ui_object_set_themeable_style_property(ui_NoteNameOkBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_click_blue);
+    lv_obj_set_style_bg_color(ui_NoteNameOkBtn, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(ui_NoteNameOkBtn, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
     ui_Label19 = lv_label_create(ui_NoteNameOkBtn);
     lv_obj_set_width(ui_Label19, LV_SIZE_CONTENT);   /// 1

@@ -45,20 +45,21 @@ void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_footer_lodyas_short_png);    // assets/footer_lodyas_short.png
 LV_IMG_DECLARE(ui_img_check_png);    // assets/check.png
-LV_IMG_DECLARE(ui_img_pattern_png);    // assets/pattern.png
-LV_IMG_DECLARE(ui_img_clock_min_png);    // assets/clock_min.png
-LV_IMG_DECLARE(ui_img_clock_hour_png);    // assets/clock_hour.png
-LV_IMG_DECLARE(ui_img_clock_sec_png);    // assets/clock_sec.png
+LV_IMG_DECLARE(ui_img_dark_dotted2_png);    // assets/dark_dotted2.png
+LV_IMG_DECLARE(ui_img_min_new_png);    // assets/min_new.png
+LV_IMG_DECLARE(ui_img_hour_new_png);    // assets/hour_new.png
+LV_IMG_DECLARE(ui_img_sec_new_png);    // assets/sec_new.png
 LV_IMG_DECLARE(ui_img_cloud_png);    // assets/cloud.png
 LV_IMG_DECLARE(ui_img_weather_1_png);    // assets/weather_1.png
 LV_IMG_DECLARE(ui_img_weather_2_png);    // assets/weather_2.png
 LV_IMG_DECLARE(ui_img_weather_3_png);    // assets/weather_3.png
-LV_IMG_DECLARE(ui_img_1880035939);    // assets/sticky-note.png
+LV_IMG_DECLARE(ui_img_carbon_fibre_png);    // assets/carbon_fibre.png
+LV_IMG_DECLARE(ui_img_565810218);    // assets/sticky-note-0.png
 LV_IMG_DECLARE(ui_img_1741635428);    // assets/wi-fi_24.png
 LV_IMG_DECLARE(ui_img_refresh_64_png);    // assets/refresh_64.png
 LV_IMG_DECLARE(ui_img_note_png);    // assets/note.png
-LV_IMG_DECLARE(ui_img_write_black_png);    // assets/write_black.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Number);

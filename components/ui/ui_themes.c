@@ -6,9 +6,6 @@
 #include "ui.h"
 
 
-const ui_theme_variable_t _ui_theme_color_click_blue[1] = {0x4D97E3};
-const ui_theme_variable_t _ui_theme_alpha_click_blue[1] = {255};
-
 const ui_theme_variable_t _ui_theme_color_Click_red[1] = {0xF4574C};
 const ui_theme_variable_t _ui_theme_alpha_Click_red[1] = {255};
 
@@ -17,6 +14,12 @@ const ui_theme_variable_t _ui_theme_alpha_panel_blue[1] = {255};
 
 const ui_theme_variable_t _ui_theme_color_Pressed_blue[1] = {0x5CC9EB};
 const ui_theme_variable_t _ui_theme_alpha_Pressed_blue[1] = {255};
+
+const ui_theme_variable_t _ui_theme_color_FF5C00[1] = {0x000000};
+const ui_theme_variable_t _ui_theme_alpha_FF5C00[1] = {255};
+
+const ui_theme_variable_t _ui_theme_color_Neon_orange[1] = {0xFF5C00};
+const ui_theme_variable_t _ui_theme_alpha_Neon_orange[1] = {255};
 uint8_t ui_theme_idx = UI_THEME_DEFAULT;
 
 
