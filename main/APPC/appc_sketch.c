@@ -11,16 +11,19 @@
 
 static const char *TAG = "APPC_SKETCH";
 
-// Perfect 32-bit CPU-word stepping multiples matching your updated SquareLine project size
+// You can change this back to 288 if you want your full height back!
 #define CANVAS_WIDTH  224
 #define CANVAS_HEIGHT 288
 
+// Pointers to track the actual raw memory allocations for safe freeing
+static void *raw_canvas_buffer = NULL;
 static uint8_t *canvas_buffer = NULL;
 static lv_obj_t *canvas = NULL;
 static lv_point_t last_point = {-1, -1};
 
-static lv_obj_t *view_canvas = NULL;
+static void *raw_view_canvas_buffer = NULL;
 static uint8_t *view_canvas_buffer = NULL;
+static lv_obj_t *view_canvas = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,9 +47,21 @@ static void note_button_click_cb(lv_event_t *e) {
         }
         
         size_t true_color_size = CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(lv_color_t);
-        if (!view_canvas_buffer) {
-            view_canvas_buffer = heap_caps_malloc(true_color_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-            if (!view_canvas_buffer) {
+        
+        if (!raw_view_canvas_buffer) {
+            // 1. Try Internal RAM first for absolute stability
+            raw_view_canvas_buffer = heap_caps_malloc(true_color_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+            if (raw_view_canvas_buffer) {
+                view_canvas_buffer = (uint8_t *)raw_view_canvas_buffer;
+            } else {
+                // 2. Fallback to SPIRAM with a 16KB offset to jump over cache corruption zones
+                size_t padding = 16384; 
+                raw_view_canvas_buffer = heap_caps_malloc(true_color_size + padding, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+                if (raw_view_canvas_buffer) {
+                    view_canvas_buffer = (uint8_t *)raw_view_canvas_buffer + padding;
+                }
+            }
+            if (!raw_view_canvas_buffer) {
                 ESP_LOGE(TAG, "Failed to allocate view canvas buffer");
                 fclose(f);
                 return;
@@ -132,8 +147,9 @@ void appc_notes_view_close(lv_event_t *e) {
             lv_obj_del(view_canvas);
             view_canvas = NULL;
         }
-        if (view_canvas_buffer) {
-            heap_caps_free(view_canvas_buffer);
+        if (raw_view_canvas_buffer) {
+            heap_caps_free(raw_view_canvas_buffer);
+            raw_view_canvas_buffer = NULL;
             view_canvas_buffer = NULL;
         }
     }
@@ -141,6 +157,13 @@ void appc_notes_view_close(lv_event_t *e) {
 
 static void sketch_canvas_event_cb(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
+    
+    if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) {
+        last_point.x = -1;
+        last_point.y = -1;
+        return;
+    }
+
     if (code != LV_EVENT_PRESSING && code != LV_EVENT_PRESSED) return;
     
     lv_indev_t *indev = lv_indev_get_act();
@@ -152,18 +175,18 @@ static void sketch_canvas_event_cb(lv_event_t *e) {
     lv_area_t rect;
     lv_obj_get_coords(canvas, &rect);
     
-    // Log BEFORE subtraction so we see raw vs canvas-local
-    ESP_LOGI(TAG, "raw=(%d,%d) canvas_origin=(%d,%d) local=(%d,%d)",
-        curr_point.x, curr_point.y,
-        rect.x1, rect.y1,
-        curr_point.x - rect.x1,
-        curr_point.y - rect.y1);
+    int32_t local_x = curr_point.x - rect.x1;
+    int32_t local_y = curr_point.y - rect.y1;
 
-    curr_point.x -= rect.x1;
-    curr_point.y -= rect.y1;
+    // STRICT REJECTION: Stop drawing if finger leaves canvas
+    if (local_x < 0 || local_x >= CANVAS_WIDTH || local_y < 0 || local_y >= CANVAS_HEIGHT) {
+        last_point.x = -1; 
+        last_point.y = -1;
+        return; 
+    }
 
-    curr_point.x = LV_CLAMP(0, curr_point.x, CANVAS_WIDTH - 1);
-    curr_point.y = LV_CLAMP(0, curr_point.y, CANVAS_HEIGHT - 1);
+    curr_point.x = local_x;
+    curr_point.y = local_y;
 
     if (code == LV_EVENT_PRESSED) {
         last_point = curr_point;
@@ -185,13 +208,7 @@ static void sketch_canvas_event_cb(lv_event_t *e) {
         lv_canvas_draw_line(canvas, points, 2, &line_dsc);
         
         last_point = curr_point;
-        
-        // Ensure changes are pushed immediately to the display pipeline
         lv_obj_invalidate(canvas);
-    } 
-    else if (code == LV_EVENT_RELEASED) {
-        last_point.x = -1;
-        last_point.y = -1;
     }
 }
 
@@ -272,102 +289,85 @@ void appc_note_cancel(lv_event_t * e){
     }
 }
 
-static void force_redraw_cb(lv_timer_t *timer) {
-    lv_obj_t *cv = (lv_obj_t *)timer->user_data;
-    lv_canvas_fill_bg(cv, lv_color_white(), LV_OPA_COVER);
-    lv_obj_invalidate(cv);
-    lv_timer_del(timer);
-}
-
 void appc_sketch_init(void) {
     last_point.x = -1;
     last_point.y = -1;
     
-    if (canvas_buffer != NULL) {
+    if (raw_canvas_buffer != NULL) {
         if (canvas) {
             lv_obj_clear_flag(canvas, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(canvas, LV_OBJ_FLAG_CLICKABLE);
-            lv_obj_align(canvas, LV_ALIGN_TOP_LEFT, 0, 0);  // re-assert position
             lv_obj_invalidate(canvas);
         }
         return;
     }
 
-    if (ui_Panel4 == NULL) return;
-
-    size_t buffer_size = LV_IMG_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT);
-    canvas_buffer = heap_caps_malloc(buffer_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    
-    if (canvas_buffer == NULL) {
-        ESP_LOGE(TAG, "Failed to allocate true-color sketch buffer!");
-        return;
+    // Hide Panel4 so it doesn't overlap the canvas
+    if (ui_Panel4 != NULL) {
+        lv_obj_add_flag(ui_Panel4, LV_OBJ_FLAG_HIDDEN);
     }
 
-    memset(canvas_buffer, 0xFF, buffer_size);
+    // We MUST attach to Panel5 so it appears on the correct screen when you navigate to it
+    if (ui_Panel5 == NULL) {
+        ESP_LOGE(TAG, "Panel5 is NULL, cannot create canvas!");
+        return; 
+    }
 
-    // 1. ANNIHILATE ALL PARENT PADDING, BORDERS, AND SCROLLING
-    lv_obj_set_style_pad_all(ui_Panel4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_Panel4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_clear_flag(ui_Panel4, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(ui_Panel4, LV_OBJ_FLAG_GESTURE_BUBBLE); // Stops swipes from shifting coordinates
-    lv_obj_set_scrollbar_mode(ui_Panel4, LV_SCROLLBAR_MODE_OFF);
+    size_t true_color_size = CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(lv_color_t);
+    
+    // 1. Try Internal RAM first for absolute stability (Bypasses PSRAM completely)
+    raw_canvas_buffer = heap_caps_malloc(true_color_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    
+    if (raw_canvas_buffer != NULL) {
+        ESP_LOGI(TAG, "Success: Canvas allocated safely in Internal RAM.");
+        canvas_buffer = (uint8_t *)raw_canvas_buffer;
+    } else {
+        // 2. Fallback to SPIRAM with a 16KB offset to jump over cache corruption zones
+        size_t padding = 16384; 
+        raw_canvas_buffer = heap_caps_malloc(true_color_size + padding, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        
+        if (raw_canvas_buffer == NULL) {
+            ESP_LOGE(TAG, "Failed to allocate true-color sketch buffer!");
+            return;
+        }
+        ESP_LOGI(TAG, "Canvas allocated in SPIRAM with 16KB safety offset.");
+        canvas_buffer = (uint8_t *)raw_canvas_buffer + padding;
+    }
 
-    lv_obj_update_layout(ui_Panel4);
+    memset(canvas_buffer, 0xFF, true_color_size);
 
-    canvas = lv_canvas_create(ui_Panel4);
+    // Get the actual screen Panel5 lives on to kill elastic scrolling safely
+    lv_obj_t *sketch_scr = lv_obj_get_screen(ui_Panel5);
+    if (sketch_scr != NULL) {
+        lv_obj_clear_flag(sketch_scr, LV_OBJ_FLAG_SCROLLABLE);
+    }
+
+    // Create the canvas safely inside Panel5
+    canvas = lv_canvas_create(ui_Panel5);
     if (canvas == NULL) return;
 
-    // 2. STRIP CANVAS STYLES TO PREVENT INHERITED OFFSETS
     lv_obj_set_style_pad_all(canvas, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(canvas, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    //lv_obj_set_style_margin_all(canvas, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    // 3. DISABLE CANVAS SCROLLING AND GESTURE BUBBLING
+    
     lv_obj_add_flag(canvas, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(canvas, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(canvas, LV_OBJ_FLAG_GESTURE_BUBBLE); 
 
     lv_canvas_set_buffer(canvas, canvas_buffer, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
     lv_canvas_fill_bg(canvas, lv_color_white(), LV_OPA_COVER);
-
-    // Diagnostic: thick red bar at the very top, thick blue bar at the very bottom
-    lv_draw_rect_dsc_t rect_dsc;
-    lv_draw_rect_dsc_init(&rect_dsc);
-    rect_dsc.bg_color = lv_color_make(255, 0, 0);
-    rect_dsc.bg_opa = LV_OPA_COVER;
-    lv_canvas_draw_rect(canvas, 0, 0, CANVAS_WIDTH, 30, &rect_dsc);   // 30px thick now
-
-    rect_dsc.bg_color = lv_color_make(0, 255, 0);
-    lv_canvas_draw_rect(canvas, 0, 30, CANVAS_WIDTH, 30, &rect_dsc);  // green band rows 30-59
-
-    rect_dsc.bg_color = lv_color_make(0, 0, 255);
-    lv_canvas_draw_rect(canvas, 0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10, &rect_dsc);
-
         
-    lv_obj_invalidate(canvas);
-
     lv_obj_set_size(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
     
-    // 4. CRITICAL: ANCHOR TOP-LEFT INSTEAD OF CENTERING
-    // This absolutely guarantees the drawing math starts at (0,0) with no negative offsets
-    lv_obj_align(canvas, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_obj_update_layout(canvas);
-    lv_obj_add_event_cb(canvas, sketch_canvas_event_cb, LV_EVENT_ALL, NULL);
-
-    ESP_LOGI(TAG, "Canvas coords: x1=%d y1=%d", lv_obj_get_x(canvas), lv_obj_get_y(canvas));
+    // Position exactly in the center with your requested +11 offset
+    lv_obj_align(canvas, LV_ALIGN_CENTER, 0, 11);
     
-     lv_obj_invalidate(ui_Panel4);
+    // Z-ORDER FIX: Push it to the front of Panel5's children
+    lv_obj_move_foreground(canvas);
+    
+    lv_obj_add_event_cb(canvas, sketch_canvas_event_cb, LV_EVENT_ALL, NULL);
+    
     lv_obj_invalidate(canvas);
-
-    lv_timer_create(force_redraw_cb, 200, canvas);
-
-    lv_obj_t *test_label = lv_label_create(ui_Panel4);
-    lv_label_set_text(test_label, "ROW0");
-    lv_obj_align(test_label, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_obj_set_style_text_color(test_label, lv_color_make(255, 0, 255), 0);  // magenta
-    lv_obj_set_style_bg_color(test_label, lv_color_make(255, 255, 0), 0);    // yellow background
-    lv_obj_set_style_bg_opa(test_label, LV_OPA_COVER, 0);                    // make bg visible
-    ESP_LOGI(TAG, "True-Color Canvas Locked and Initialized.");
+    ESP_LOGI(TAG, "True-Color Canvas Initialized successfully on Panel5.");
 }
 
 void appc_sketch_deinit(void) {
@@ -375,8 +375,10 @@ void appc_sketch_deinit(void) {
         lv_obj_del(canvas);
         canvas = NULL;
     }
-    if (canvas_buffer) {
-        heap_caps_free(canvas_buffer);
+    // Safely free using the raw unshifted pointer
+    if (raw_canvas_buffer) {
+        heap_caps_free(raw_canvas_buffer);
+        raw_canvas_buffer = NULL;
         canvas_buffer = NULL;
     }
 }
