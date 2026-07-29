@@ -57,9 +57,7 @@ LV_IMG_DECLARE(ui_img_weather_2_png);    // assets/weather_2.png
 LV_IMG_DECLARE(ui_img_weather_3_png);    // assets/weather_3.png
 LV_IMG_DECLARE(ui_img_carbon_fibre_png);    // assets/carbon_fibre.png
 LV_IMG_DECLARE(ui_img_565810218);    // assets/sticky-note-0.png
-LV_IMG_DECLARE(ui_img_1741635428);    // assets/wi-fi_24.png
 LV_IMG_DECLARE(ui_img_refresh_64_png);    // assets/refresh_64.png
-LV_IMG_DECLARE(ui_img_note_png);    // assets/note.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Number);

@@ -10,8 +10,8 @@
 extern "C" {
 #endif
 
-void ui_event_wifi_item_clicked(lv_event_t * e);
 void appc_notes_list_populate(lv_event_t * e);
+void ui_event_wifi_item_clicked(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

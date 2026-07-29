@@ -29,7 +29,5 @@ images/ui_img_weather_2_png.c
 images/ui_img_weather_3_png.c
 images/ui_img_carbon_fibre_png.c
 images/ui_img_565810218.c
-images/ui_img_1741635428.c
 images/ui_img_refresh_64_png.c
-images/ui_img_note_png.c
 fonts/ui_font_Number.c
