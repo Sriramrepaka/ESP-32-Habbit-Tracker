@@ -11,26 +11,14 @@ lv_obj_t * ui_NotesDisplayPanel = NULL;
 lv_obj_t * ui_NoteTemplate = NULL;
 lv_obj_t * ui_Label9 = NULL;
 lv_obj_t * ui_Image3 = NULL;
-lv_obj_t * ui_NoteEditBtn = NULL;
 lv_obj_t * ui_SettingsNoteCloseBtn = NULL;
 lv_obj_t * ui_Label13 = NULL;
 lv_obj_t * ui_Label14 = NULL;
-lv_obj_t * ui_NotesRenamePanel = NULL;
-lv_obj_t * ui_Panel11 = NULL;
-lv_obj_t * ui_TextArea1 = NULL;
-lv_obj_t * ui_Label10 = NULL;
-lv_obj_t * ui_NoteRenameCancelBtn = NULL;
-lv_obj_t * ui_Label11 = NULL;
-lv_obj_t * ui_NoteRenameOkBtn = NULL;
-lv_obj_t * ui_Label12 = NULL;
-lv_obj_t * ui_RenameKeyboard = NULL;
 lv_obj_t * ui_NotesViewPanel = NULL;
 lv_obj_t * ui_SketchViewPanel = NULL;
-lv_obj_t * ui_SketchViewSaveBtn2 = NULL;
-lv_obj_t * ui_Label17 = NULL;
-lv_obj_t * ui_SketchViewCloseBtn2 = NULL;
+lv_obj_t * ui_SketchViewCloseBtn = NULL;
 lv_obj_t * ui_Label16 = NULL;
-lv_obj_t * ui_SketchViewDeleteBtn1 = NULL;
+lv_obj_t * ui_SketchViewDeleteBtn = NULL;
 lv_obj_t * ui_Label15 = NULL;
 // event funtions
 void ui_event_SettingsNotes(lv_event_t * e)
@@ -51,15 +39,6 @@ void ui_event_NoteTemplate(lv_event_t * e)
     }
 }
 
-void ui_event_NoteEditBtn(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_NotesRenamePanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
-}
-
 void ui_event_SettingsNoteCloseBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -69,34 +48,7 @@ void ui_event_SettingsNoteCloseBtn(lv_event_t * e)
     }
 }
 
-void ui_event_NoteRenameCancelBtn(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_NotesRenamePanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-}
-
-void ui_event_NoteRenameOkBtn(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_NotesRenamePanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-}
-
-void ui_event_SketchViewSaveBtn2(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-}
-
-void ui_event_SketchViewCloseBtn2(lv_event_t * e)
+void ui_event_SketchViewCloseBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -106,7 +58,7 @@ void ui_event_SketchViewCloseBtn2(lv_event_t * e)
     }
 }
 
-void ui_event_SketchViewDeleteBtn1(lv_event_t * e)
+void ui_event_SketchViewDeleteBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -174,13 +126,6 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_NoteEditBtn = lv_imgbtn_create(ui_NoteTemplate);
-    lv_obj_set_width(ui_NoteEditBtn, 32);
-    lv_obj_set_height(ui_NoteEditBtn, 32);
-    lv_obj_set_x(ui_NoteEditBtn, 88);
-    lv_obj_set_y(ui_NoteEditBtn, -2);
-    lv_obj_set_align(ui_NoteEditBtn, LV_ALIGN_CENTER);
-
     ui_SettingsNoteCloseBtn = lv_btn_create(ui_Panel7);
     lv_obj_set_width(ui_SettingsNoteCloseBtn, 48);
     lv_obj_set_height(ui_SettingsNoteCloseBtn, 21);
@@ -214,113 +159,6 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_set_style_text_opa(ui_Label14, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label14, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_NotesRenamePanel = lv_obj_create(ui_SettingsNotes);
-    lv_obj_set_width(ui_NotesRenamePanel, lv_pct(100));
-    lv_obj_set_height(ui_NotesRenamePanel, lv_pct(100));
-    lv_obj_set_align(ui_NotesRenamePanel, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NotesRenamePanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
-    lv_obj_clear_flag(ui_NotesRenamePanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Panel11 = lv_obj_create(ui_NotesRenamePanel);
-    lv_obj_set_width(ui_Panel11, 220);
-    lv_obj_set_height(ui_Panel11, 100);
-    lv_obj_set_x(ui_Panel11, 0);
-    lv_obj_set_y(ui_Panel11, -97);
-    lv_obj_set_align(ui_Panel11, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Panel11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Panel11, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Panel11, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Panel11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_Panel11, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_Panel11, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_transform_angle(ui_Panel11, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_TextArea1 = lv_textarea_create(ui_Panel11);
-    lv_obj_set_width(ui_TextArea1, 180);
-    lv_obj_set_height(ui_TextArea1, 22);
-    lv_obj_set_x(ui_TextArea1, 1);
-    lv_obj_set_y(ui_TextArea1, -9);
-    lv_obj_set_align(ui_TextArea1, LV_ALIGN_CENTER);
-    lv_textarea_set_placeholder_text(ui_TextArea1, "Filename");
-    lv_textarea_set_password_mode(ui_TextArea1, true);
-    lv_obj_set_style_radius(ui_TextArea1, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_TextArea1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_TextArea1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_TextArea1, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_TextArea1, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_transform_angle(ui_TextArea1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_text_font(ui_TextArea1, &lv_font_montserrat_16, LV_PART_TEXTAREA_PLACEHOLDER | LV_STATE_DEFAULT);
-
-    ui_Label10 = lv_label_create(ui_Panel11);
-    lv_obj_set_width(ui_Label10, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label10, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label10, -57);
-    lv_obj_set_y(ui_Label10, -30);
-    lv_obj_set_align(ui_Label10, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label10, "Rename:");
-    lv_obj_set_style_text_color(ui_Label10, lv_color_hex(0x040404), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label10, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_NoteRenameCancelBtn = lv_btn_create(ui_Panel11);
-    lv_obj_set_width(ui_NoteRenameCancelBtn, 65);
-    lv_obj_set_height(ui_NoteRenameCancelBtn, 25);
-    lv_obj_set_x(ui_NoteRenameCancelBtn, -12);
-    lv_obj_set_y(ui_NoteRenameCancelBtn, 27);
-    lv_obj_set_align(ui_NoteRenameCancelBtn, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoteRenameCancelBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_NoteRenameCancelBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_NoteRenameCancelBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_NoteRenameCancelBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_NoteRenameCancelBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_NoteRenameCancelBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_NoteRenameCancelBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_NoteRenameCancelBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_NoteRenameCancelBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Click_red);
-    ui_object_set_themeable_style_property(ui_NoteRenameCancelBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Click_red);
-
-    ui_Label11 = lv_label_create(ui_NoteRenameCancelBtn);
-    lv_obj_set_width(ui_Label11, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label11, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Label11, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label11, "Cancel");
-    lv_obj_set_style_text_color(ui_Label11, lv_color_hex(0x030303), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_NoteRenameOkBtn = lv_btn_create(ui_Panel11);
-    lv_obj_set_width(ui_NoteRenameOkBtn, 65);
-    lv_obj_set_height(ui_NoteRenameOkBtn, 25);
-    lv_obj_set_x(ui_NoteRenameOkBtn, 67);
-    lv_obj_set_y(ui_NoteRenameOkBtn, 27);
-    lv_obj_set_align(ui_NoteRenameOkBtn, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoteRenameOkBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_NoteRenameOkBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_NoteRenameOkBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_NoteRenameOkBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_NoteRenameOkBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_NoteRenameOkBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_NoteRenameOkBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_NoteRenameOkBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_NoteRenameOkBtn, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(ui_NoteRenameOkBtn, 255, LV_PART_MAIN | LV_STATE_PRESSED);
-
-    ui_Label12 = lv_label_create(ui_NoteRenameOkBtn);
-    lv_obj_set_width(ui_Label12, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label12, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Label12, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label12, "Ok");
-    lv_obj_set_style_text_color(ui_Label12, lv_color_hex(0x050404), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label12, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_RenameKeyboard = lv_keyboard_create(ui_NotesRenamePanel);
-    lv_obj_set_width(ui_RenameKeyboard, 236);
-    lv_obj_set_height(ui_RenameKeyboard, 162);
-    lv_obj_set_x(ui_RenameKeyboard, 0);
-    lv_obj_set_y(ui_RenameKeyboard, 76);
-    lv_obj_set_align(ui_RenameKeyboard, LV_ALIGN_CENTER);
-
     ui_NotesViewPanel = lv_obj_create(ui_SettingsNotes);
     lv_obj_set_width(ui_NotesViewPanel, lv_pct(100));
     lv_obj_set_height(ui_NotesViewPanel, lv_pct(100));
@@ -331,6 +169,8 @@ void ui_SettingsNotes_screen_init(void)
                                            _ui_theme_color_panel_blue);
     ui_object_set_themeable_style_property(ui_NotesViewPanel, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
                                            _ui_theme_alpha_panel_blue);
+    lv_obj_set_style_bg_img_src(ui_NotesViewPanel, &ui_img_carbon_fibre_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_tiled(ui_NotesViewPanel, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SketchViewPanel = lv_obj_create(ui_NotesViewPanel);
     lv_obj_set_width(ui_SketchViewPanel, 218);
@@ -338,55 +178,33 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_set_x(ui_SketchViewPanel, 0);
     lv_obj_set_y(ui_SketchViewPanel, -11);
     lv_obj_set_align(ui_SketchViewPanel, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SketchViewPanel,
+                      LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_style_border_color(ui_SketchViewPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_SketchViewPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_SketchViewPanel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SketchViewSaveBtn2 = lv_btn_create(ui_NotesViewPanel);
-    lv_obj_set_width(ui_SketchViewSaveBtn2, 48);
-    lv_obj_set_height(ui_SketchViewSaveBtn2, 20);
-    lv_obj_set_x(ui_SketchViewSaveBtn2, -85);
-    lv_obj_set_y(ui_SketchViewSaveBtn2, 147);
-    lv_obj_set_align(ui_SketchViewSaveBtn2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_SketchViewSaveBtn2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_SketchViewSaveBtn2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_SketchViewSaveBtn2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SketchViewSaveBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_SketchViewSaveBtn2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_SketchViewSaveBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_SketchViewSaveBtn2, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_SketchViewSaveBtn2, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_SketchViewSaveBtn2, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(ui_SketchViewSaveBtn2, 255, LV_PART_MAIN | LV_STATE_PRESSED);
-
-    ui_Label17 = lv_label_create(ui_SketchViewSaveBtn2);
-    lv_obj_set_width(ui_Label17, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label17, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Label17, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label17, "Save");
-    lv_obj_set_style_text_color(ui_Label17, lv_color_hex(0x020000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label17, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_SketchViewCloseBtn2 = lv_btn_create(ui_NotesViewPanel);
-    lv_obj_set_width(ui_SketchViewCloseBtn2, 48);
-    lv_obj_set_height(ui_SketchViewCloseBtn2, 20);
-    lv_obj_set_x(ui_SketchViewCloseBtn2, 85);
-    lv_obj_set_y(ui_SketchViewCloseBtn2, 147);
-    lv_obj_set_align(ui_SketchViewCloseBtn2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_SketchViewCloseBtn2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_SketchViewCloseBtn2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_SketchViewCloseBtn2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SketchViewCloseBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_SketchViewCloseBtn2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_SketchViewCloseBtn2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_SketchViewCloseBtn2, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_SketchViewCloseBtn2, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_SketchViewCloseBtn2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
+    ui_SketchViewCloseBtn = lv_btn_create(ui_NotesViewPanel);
+    lv_obj_set_width(ui_SketchViewCloseBtn, 48);
+    lv_obj_set_height(ui_SketchViewCloseBtn, 20);
+    lv_obj_set_x(ui_SketchViewCloseBtn, 85);
+    lv_obj_set_y(ui_SketchViewCloseBtn, 147);
+    lv_obj_set_align(ui_SketchViewCloseBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SketchViewCloseBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SketchViewCloseBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_SketchViewCloseBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SketchViewCloseBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SketchViewCloseBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SketchViewCloseBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SketchViewCloseBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_SketchViewCloseBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_SketchViewCloseBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
                                            _ui_theme_color_Click_red);
-    ui_object_set_themeable_style_property(ui_SketchViewCloseBtn2, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
+    ui_object_set_themeable_style_property(ui_SketchViewCloseBtn, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
                                            _ui_theme_alpha_Click_red);
 
-    ui_Label16 = lv_label_create(ui_SketchViewCloseBtn2);
+    ui_Label16 = lv_label_create(ui_SketchViewCloseBtn);
     lv_obj_set_width(ui_Label16, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label16, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label16, -1);
@@ -396,24 +214,24 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_set_style_text_color(ui_Label16, lv_color_hex(0x020000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label16, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SketchViewDeleteBtn1 = lv_btn_create(ui_NotesViewPanel);
-    lv_obj_set_width(ui_SketchViewDeleteBtn1, 52);
-    lv_obj_set_height(ui_SketchViewDeleteBtn1, 20);
-    lv_obj_set_x(ui_SketchViewDeleteBtn1, 0);
-    lv_obj_set_y(ui_SketchViewDeleteBtn1, 147);
-    lv_obj_set_align(ui_SketchViewDeleteBtn1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_SketchViewDeleteBtn1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_SketchViewDeleteBtn1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_SketchViewDeleteBtn1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SketchViewDeleteBtn1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_SketchViewDeleteBtn1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_SketchViewDeleteBtn1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_SketchViewDeleteBtn1, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_SketchViewDeleteBtn1, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_SketchViewDeleteBtn1, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(ui_SketchViewDeleteBtn1, 255, LV_PART_MAIN | LV_STATE_PRESSED);
+    ui_SketchViewDeleteBtn = lv_btn_create(ui_NotesViewPanel);
+    lv_obj_set_width(ui_SketchViewDeleteBtn, 52);
+    lv_obj_set_height(ui_SketchViewDeleteBtn, 20);
+    lv_obj_set_x(ui_SketchViewDeleteBtn, -83);
+    lv_obj_set_y(ui_SketchViewDeleteBtn, 147);
+    lv_obj_set_align(ui_SketchViewDeleteBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SketchViewDeleteBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SketchViewDeleteBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_SketchViewDeleteBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SketchViewDeleteBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SketchViewDeleteBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SketchViewDeleteBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SketchViewDeleteBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_SketchViewDeleteBtn, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SketchViewDeleteBtn, lv_color_hex(0x4D97E3), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(ui_SketchViewDeleteBtn, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 
-    ui_Label15 = lv_label_create(ui_SketchViewDeleteBtn1);
+    ui_Label15 = lv_label_create(ui_SketchViewDeleteBtn);
     lv_obj_set_width(ui_Label15, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label15, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label15, LV_ALIGN_CENTER);
@@ -421,15 +239,10 @@ void ui_SettingsNotes_screen_init(void)
     lv_obj_set_style_text_color(ui_Label15, lv_color_hex(0x020000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label15, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_NoteEditBtn, ui_event_NoteEditBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_NoteTemplate, ui_event_NoteTemplate, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SettingsNoteCloseBtn, ui_event_SettingsNoteCloseBtn, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_NoteRenameCancelBtn, ui_event_NoteRenameCancelBtn, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_NoteRenameOkBtn, ui_event_NoteRenameOkBtn, LV_EVENT_ALL, NULL);
-    lv_keyboard_set_textarea(ui_RenameKeyboard, ui_TextArea1);
-    lv_obj_add_event_cb(ui_SketchViewSaveBtn2, ui_event_SketchViewSaveBtn2, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_SketchViewCloseBtn2, ui_event_SketchViewCloseBtn2, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_SketchViewDeleteBtn1, ui_event_SketchViewDeleteBtn1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SketchViewCloseBtn, ui_event_SketchViewCloseBtn, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SketchViewDeleteBtn, ui_event_SketchViewDeleteBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SettingsNotes, ui_event_SettingsNotes, LV_EVENT_ALL, NULL);
 
 }
@@ -445,26 +258,14 @@ void ui_SettingsNotes_screen_destroy(void)
     ui_NoteTemplate = NULL;
     ui_Label9 = NULL;
     ui_Image3 = NULL;
-    ui_NoteEditBtn = NULL;
     ui_SettingsNoteCloseBtn = NULL;
     ui_Label13 = NULL;
     ui_Label14 = NULL;
-    ui_NotesRenamePanel = NULL;
-    ui_Panel11 = NULL;
-    ui_TextArea1 = NULL;
-    ui_Label10 = NULL;
-    ui_NoteRenameCancelBtn = NULL;
-    ui_Label11 = NULL;
-    ui_NoteRenameOkBtn = NULL;
-    ui_Label12 = NULL;
-    ui_RenameKeyboard = NULL;
     ui_NotesViewPanel = NULL;
     ui_SketchViewPanel = NULL;
-    ui_SketchViewSaveBtn2 = NULL;
-    ui_Label17 = NULL;
-    ui_SketchViewCloseBtn2 = NULL;
+    ui_SketchViewCloseBtn = NULL;
     ui_Label16 = NULL;
-    ui_SketchViewDeleteBtn1 = NULL;
+    ui_SketchViewDeleteBtn = NULL;
     ui_Label15 = NULL;
 
 }
