@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
+#include <sys/stat.h> // Added for mkdir() and stat()
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_task_wdt.h"
@@ -25,6 +26,9 @@ static void *raw_view_canvas_buffer = NULL;
 static uint8_t *view_canvas_buffer = NULL;
 static lv_obj_t *view_canvas = NULL;
 
+// NEW: Track the currently opened note's file path for deletion
+static char current_open_note_path[64] = "";
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void note_button_click_cb(lv_event_t *e) {
@@ -37,24 +41,28 @@ static void note_button_click_cb(lv_event_t *e) {
         const char *note_name = lv_label_get_text(label);
         
         char full_path[64];
-        snprintf(full_path, sizeof(full_path), "/sdcard/%s.bin", note_name);
+        // UPDATED: Target the Notes folder
+        snprintf(full_path, sizeof(full_path), "/sdcard/Notes/%s.bin", note_name);
+        
+        // Save this path globally so the delete button knows what to delete
+        strncpy(current_open_note_path, full_path, sizeof(current_open_note_path) - 1);
+        
         ESP_LOGI(TAG, "Loading saved true-color note from: %s", full_path);
 
         FILE *f = fopen(full_path, "rb");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open note binary file.");
+            current_open_note_path[0] = '\0'; // Reset tracking on failure
             return;
         }
         
         size_t true_color_size = CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(lv_color_t);
         
         if (!raw_view_canvas_buffer) {
-            // 1. Try Internal RAM first for absolute stability
             raw_view_canvas_buffer = heap_caps_malloc(true_color_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
             if (raw_view_canvas_buffer) {
                 view_canvas_buffer = (uint8_t *)raw_view_canvas_buffer;
             } else {
-                // 2. Fallback to SPIRAM with a 16KB offset to jump over cache corruption zones
                 size_t padding = 16384; 
                 raw_view_canvas_buffer = heap_caps_malloc(true_color_size + padding, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
                 if (raw_view_canvas_buffer) {
@@ -92,9 +100,10 @@ void appc_notes_list_populate(lv_event_t * e) {
     lv_obj_clean(ui_NotesDisplayPanel);
     lv_obj_set_flex_flow(ui_NotesDisplayPanel, LV_FLEX_FLOW_COLUMN); 
 
-    DIR *dir = opendir("/sdcard/");
+    // UPDATED: Read from the Notes folder
+    DIR *dir = opendir("/sdcard/Notes/");
     if (dir == NULL) {
-        ESP_LOGE(TAG, "Failed to open /sdcard root directory.");
+        ESP_LOGW(TAG, "Notes directory not found or empty.");
         return;
     }
 
@@ -143,6 +152,8 @@ void appc_notes_view_close(lv_event_t *e) {
     if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
         lv_obj_add_flag(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN);
         
+        current_open_note_path[0] = '\0'; // Clear tracking when closed
+        
         if (view_canvas) {
             lv_obj_del(view_canvas);
             view_canvas = NULL;
@@ -152,6 +163,40 @@ void appc_notes_view_close(lv_event_t *e) {
             raw_view_canvas_buffer = NULL;
             view_canvas_buffer = NULL;
         }
+    }
+}
+
+// NEW FUNCTION: Attach this to your ui_SketchViewDeleteBtn in LVGL/SquareLine
+void appc_note_delete(lv_event_t * e) {
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+        if (strlen(current_open_note_path) > 0) {
+            ESP_LOGI(TAG, "Attempting to delete: %s", current_open_note_path);
+            
+            // Delete the file from the SD card
+            if (unlink(current_open_note_path) == 0) {
+                ESP_LOGI(TAG, "Note deleted successfully.");
+            } else {
+                ESP_LOGE(TAG, "Failed to delete note.");
+            }
+            
+            // Reset tracking variable
+            current_open_note_path[0] = '\0';
+        }
+        
+        // Hide the view panel and free the memory (identical cleanup to closing)
+        lv_obj_add_flag(ui_NotesViewPanel, LV_OBJ_FLAG_HIDDEN);
+        if (view_canvas) {
+            lv_obj_del(view_canvas);
+            view_canvas = NULL;
+        }
+        if (raw_view_canvas_buffer) {
+            heap_caps_free(raw_view_canvas_buffer);
+            raw_view_canvas_buffer = NULL;
+            view_canvas_buffer = NULL;
+        }
+
+        // Refresh the list immediately so the deleted note vanishes from the screen
+        appc_notes_list_populate(NULL);
     }
 }
 
@@ -178,7 +223,6 @@ static void sketch_canvas_event_cb(lv_event_t *e) {
     int32_t local_x = curr_point.x - rect.x1;
     int32_t local_y = curr_point.y - rect.y1;
 
-    // STRICT REJECTION: Stop drawing if finger leaves canvas
     if (local_x < 0 || local_x >= CANVAS_WIDTH || local_y < 0 || local_y >= CANVAS_HEIGHT) {
         last_point.x = -1; 
         last_point.y = -1;
@@ -242,8 +286,16 @@ void appc_note_save(lv_event_t *e) {
             return;
         }
 
+        // NEW: Ensure the Notes directory exists before trying to write a file to it
+        struct stat st = {0};
+        if (stat("/sdcard/Notes", &st) == -1) {
+            ESP_LOGI(TAG, "Notes directory does not exist. Creating it now...");
+            mkdir("/sdcard/Notes", 0777);
+        }
+
         char full_path[64];
-        snprintf(full_path, sizeof(full_path), "/sdcard/%s.bin", filename);
+        // UPDATED: Save to the Notes folder
+        snprintf(full_path, sizeof(full_path), "/sdcard/Notes/%s.bin", filename);
         ESP_LOGI(TAG, "Saving true-color sketch to path: %s", full_path);
 
         if (canvas_buffer == NULL) return;
@@ -302,7 +354,6 @@ void appc_sketch_init(void) {
         return;
     }
 
-    // We MUST attach to Panel5 so it appears on the correct screen when you navigate to it
     if (ui_Panel5 == NULL) {
         ESP_LOGE(TAG, "Panel5 is NULL, cannot create canvas!");
         return; 
@@ -310,14 +361,12 @@ void appc_sketch_init(void) {
 
     size_t true_color_size = CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(lv_color_t);
     
-    // 1. Try Internal RAM first for absolute stability (Bypasses PSRAM completely)
     raw_canvas_buffer = heap_caps_malloc(true_color_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     
     if (raw_canvas_buffer != NULL) {
         ESP_LOGI(TAG, "Success: Canvas allocated safely in Internal RAM.");
         canvas_buffer = (uint8_t *)raw_canvas_buffer;
     } else {
-        // 2. Fallback to SPIRAM with a 16KB offset to jump over cache corruption zones
         size_t padding = 16384; 
         raw_canvas_buffer = heap_caps_malloc(true_color_size + padding, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
         
@@ -331,13 +380,11 @@ void appc_sketch_init(void) {
 
     memset(canvas_buffer, 0xFF, true_color_size);
 
-    // Get the actual screen Panel5 lives on to kill elastic scrolling safely
     lv_obj_t *sketch_scr = lv_obj_get_screen(ui_Panel5);
     if (sketch_scr != NULL) {
         lv_obj_clear_flag(sketch_scr, LV_OBJ_FLAG_SCROLLABLE);
     }
 
-    // Create the canvas safely inside Panel5
     canvas = lv_canvas_create(ui_Panel5);
     if (canvas == NULL) return;
 
@@ -352,11 +399,7 @@ void appc_sketch_init(void) {
     lv_canvas_fill_bg(canvas, lv_color_white(), LV_OPA_COVER);
 
     lv_obj_set_size(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
-    
-    // Position exactly in the center with your requested +11 offset
     lv_obj_align(canvas, LV_ALIGN_CENTER, 0, 11);
-    
-    // Z-ORDER FIX: Push it to the front of Panel5's children
     lv_obj_move_foreground(canvas);
     
     lv_obj_add_event_cb(canvas, sketch_canvas_event_cb, LV_EVENT_ALL, NULL);
@@ -370,7 +413,6 @@ void appc_sketch_deinit(void) {
         lv_obj_del(canvas);
         canvas = NULL;
     }
-    // Safely free using the raw unshifted pointer
     if (raw_canvas_buffer) {
         heap_caps_free(raw_canvas_buffer);
         raw_canvas_buffer = NULL;

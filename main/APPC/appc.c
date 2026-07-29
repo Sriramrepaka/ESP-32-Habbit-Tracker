@@ -124,15 +124,21 @@ void appc_init(void) {
     lv_timer_create(appc_wifi_ui_timer_cb, 500, NULL);
     lv_timer_create(appc_clock_timer_cb, 1000, NULL);
     lv_timer_create(appc_date_timer_cb, 6*60*60*1000, NULL);
-    //lv_label_set_text(ui_Label6, LV_SYMBOL_REFRESH);
+    
+    //WiFi events
     lv_obj_add_event_cb(ui_WifiConnectButton, app_wifi_connect, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_WifiRefreshButton, app_wifi_scan_refresh, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_WifiCloseButton, app_wifi_close, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_settingsWifiPanel, appc_wifi_panel_click_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_WifiEnableSwitch, app_wifi_enable_disable, LV_EVENT_VALUE_CHANGED, NULL);
+
+    //Note events
     lv_obj_add_event_cb(ui_SketchCloseBtn, appc_sketch_close, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchSaveBtn, appc_sketch_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(ui_settingsWifiPanel, appc_wifi_panel_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
+    
+    
 
 }
