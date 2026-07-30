@@ -177,7 +177,7 @@ void ui_Wifimenu_screen_init(void)
 
     ui_WifiCancelButton = lv_btn_create(ui_Panel1);
     lv_obj_set_width(ui_WifiCancelButton, 55);
-    lv_obj_set_height(ui_WifiCancelButton, 16);
+    lv_obj_set_height(ui_WifiCancelButton, 20);
     lv_obj_set_x(ui_WifiCancelButton, -6);
     lv_obj_set_y(ui_WifiCancelButton, 24);
     lv_obj_set_align(ui_WifiCancelButton, LV_ALIGN_CENTER);
@@ -199,11 +199,11 @@ void ui_Wifimenu_screen_init(void)
     lv_label_set_text(ui_Label1, "Back");
     lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x050000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_WifiConnectButton = lv_btn_create(ui_Panel1);
     lv_obj_set_width(ui_WifiConnectButton, 55);
-    lv_obj_set_height(ui_WifiConnectButton, 16);
+    lv_obj_set_height(ui_WifiConnectButton, 20);
     lv_obj_set_x(ui_WifiConnectButton, 60);
     lv_obj_set_y(ui_WifiConnectButton, 24);
     lv_obj_set_align(ui_WifiConnectButton, LV_ALIGN_CENTER);
@@ -226,7 +226,7 @@ void ui_Wifimenu_screen_init(void)
     lv_label_set_recolor(ui_Label5, "true");
     lv_obj_set_style_text_color(ui_Label5, lv_color_hex(0x050000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label5, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label5, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_Label5, lv_color_hex(0x5CC9EB), LV_PART_MAIN | LV_STATE_PRESSED);
     lv_obj_set_style_bg_opa(ui_Label5, 255, LV_PART_MAIN | LV_STATE_PRESSED);
 

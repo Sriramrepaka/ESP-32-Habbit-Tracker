@@ -83,7 +83,7 @@ void ui_SettingsNotes_screen_init(void)
 
     ui_SettingsNoteCloseBtn = lv_btn_create(ui_Panel7);
     lv_obj_set_width(ui_SettingsNoteCloseBtn, 48);
-    lv_obj_set_height(ui_SettingsNoteCloseBtn, 21);
+    lv_obj_set_height(ui_SettingsNoteCloseBtn, 20);
     lv_obj_set_x(ui_SettingsNoteCloseBtn, 86);
     lv_obj_set_y(ui_SettingsNoteCloseBtn, -141);
     lv_obj_set_align(ui_SettingsNoteCloseBtn, LV_ALIGN_CENTER);

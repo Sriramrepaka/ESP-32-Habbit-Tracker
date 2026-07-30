@@ -249,6 +249,7 @@ void ui_init(void)
     ui_Wifimenu_screen_init();
     ui_Sketchpad_screen_init();
     ui_SettingsNotes_screen_init();
+    ui_Productivity__screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
 
@@ -266,4 +267,5 @@ void ui_destroy(void)
     ui_Wifimenu_screen_destroy();
     ui_Sketchpad_screen_destroy();
     ui_SettingsNotes_screen_destroy();
+    ui_Productivity__screen_destroy();
 }

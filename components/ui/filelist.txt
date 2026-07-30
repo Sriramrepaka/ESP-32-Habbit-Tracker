@@ -11,6 +11,7 @@ screens/ui_Settings.c
 screens/ui_Wifimenu.c
 screens/ui_Sketchpad.c
 screens/ui_SettingsNotes.c
+screens/ui_Productivity_.c
 ui_theme_manager.c
 ui_themes.c
 ui.c
