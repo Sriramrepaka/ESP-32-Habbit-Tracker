@@ -10,6 +10,7 @@
 #include "ui.h"
 #include "appc.h"
 #include "esp_task_wdt.h"
+#include "esp_spiffs.h"
 
 void Driver_Loop(void *parameter)
 {
@@ -41,14 +42,29 @@ void Driver_Init(void)
         NULL, 
         0);
 }
+void SPIFFS_Init(void) {
+    esp_vfs_spiffs_conf_t conf = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = true 
+    };
+    
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    if (ret != ESP_OK) {
+        printf("Failed to mount SPIFFS (%s)\n", esp_err_to_name(ret));
+    } else {
+        printf("SPIFFS mounted successfully!\n");
+    }
+}
 void app_main(void)
 {
     Driver_Init();
+    SPIFFS_Init();
     printf("Here while booting 1\n");
     SD_Init();
     LCD_Init();
     Audio_Init();
-    // Play_Music("/sdcard","AAA.mp3");
     LVGL_Init();   // returns the screen object
     ui_init();
     appc_init();

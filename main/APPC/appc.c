@@ -2,9 +2,82 @@
 #include "esp_log.h"
 #include "ui.h"
 #include "esp_sntp.h"
+#include "PCM5101.h"
+#include <sys/stat.h>
+#include <stdio.h>
+#include <string.h>
 
 
 static const char *TAG = "APPC_MAIN";
+
+void appc_sync_bootup_sound(void) {
+    const char *sd_path = "/sdcard/Audio/bootup.mp3";
+    const char *spiffs_path = "/spiffs/bootup.mp3";
+
+    struct stat sd_stat, spiffs_stat;
+    bool needs_update = false;
+
+    // 1. Check if the SD card file even exists
+    if (stat(sd_path, &sd_stat) != 0) {
+        ESP_LOGI("SYNC", "No bootup.mp3 found on SD card. Skipping sync.");
+        return;
+    }
+
+    // 2. Check if the SPIFFS file exists and compare sizes
+    if (stat(spiffs_path, &spiffs_stat) != 0) {
+        ESP_LOGI("SYNC", "Bootup sound not in flash yet. Updating...");
+        needs_update = true;
+    } else if (sd_stat.st_size != spiffs_stat.st_size) {
+        ESP_LOGI("SYNC", "Bootup sound sizes differ (SD: %ld, Flash: %ld). Updating...", 
+                 sd_stat.st_size, spiffs_stat.st_size);
+        needs_update = true;
+    }
+
+    // 3. Perform the copy if needed
+    if (needs_update) {
+        FILE *src = fopen(sd_path, "rb");
+        FILE *dst = fopen(spiffs_path, "wb");
+
+        if (src == NULL || dst == NULL) {
+            ESP_LOGE("SYNC", "Failed to open files for syncing!");
+            if (src) fclose(src);
+            if (dst) fclose(dst);
+            return;
+        }
+
+        // MEMORY SAFE COPY: Transfer 2KB at a time so we don't crash the RAM
+        size_t chunk_size = 2048;
+        uint8_t *buffer = malloc(chunk_size);
+        if (buffer == NULL) {
+            ESP_LOGE("SYNC", "Failed to allocate memory for file copy.");
+            fclose(src);
+            fclose(dst);
+            return;
+        }
+
+        size_t bytes_read;
+        size_t total_written = 0;
+        
+        ESP_LOGI("SYNC", "Copying audio file to internal flash... Please wait.");
+        
+        while ((bytes_read = fread(buffer, 1, chunk_size, src)) > 0) {
+            fwrite(buffer, 1, bytes_read, dst);
+            total_written += bytes_read;
+        }
+
+        free(buffer);
+        fclose(src);
+        fclose(dst);
+
+        ESP_LOGI("SYNC", "Sync complete! Wrote %zu bytes to flash.", total_written);
+    } else {
+        ESP_LOGI("SYNC", "Bootup sound is already up to date.");
+    }
+}
+
+void appc_sync_assets(void){
+    appc_sync_bootup_sound();
+}
 
 void appc_wifi_ui_timer_cb(lv_timer_t * timer) {
     // 1. Get the current status from your getter
@@ -97,6 +170,8 @@ void appc_init(void) {
     ESP_LOGI(TAG, "Initializing Application Controller Layer...");
     ESP_LOGI(TAG, "APPC Layer Started.");
 
+    appc_sync_assets();
+    Play_Music("/spiffs", "bootup.mp3");
     char saved_ssid[32] = {0};
     char saved_pass[64] = {0};
     if (app_nvs_load_credentials(saved_ssid,saved_pass) == ESP_OK && strlen(saved_ssid) > 0) {
