@@ -214,6 +214,6 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
     
-    
+    //Play_Music("/sdcard/Audio", "SadaSiva.mp3");
 
 }
