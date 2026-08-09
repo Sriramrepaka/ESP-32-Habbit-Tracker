@@ -4,6 +4,7 @@
 // Include all sub-module headers here
 #include "appc_wifi_connect.h"
 #include "appc_sketch.h"
+#include "appc_tasks.h"
 
 // Global Application Init
 void appc_init(void);

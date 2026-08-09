@@ -8,6 +8,7 @@
 lv_obj_t * ui_Clock = NULL;
 lv_obj_t * ui_Clock_Number = NULL;
 lv_obj_t * ui_Date = NULL;
+lv_obj_t * ui_Panel2 = NULL;
 // event funtions
 void ui_event_Clock(lv_event_t * e)
 {
@@ -15,7 +16,7 @@ void ui_event_Clock(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Productivity_, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Productivity__screen_init);
+        _ui_screen_change(&ui_Weather, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Weather_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
@@ -27,7 +28,7 @@ void ui_event_Clock(lv_event_t * e)
     }
 }
 
-void ui_event_Clock_Number(lv_event_t * e)
+void ui_event_Panel2(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -71,7 +72,13 @@ void ui_Clock_screen_init(void)
     lv_obj_set_style_text_opa(ui_Date, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Date, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_Clock_Number, ui_event_Clock_Number, LV_EVENT_ALL, NULL);
+    ui_Panel2 = lv_obj_create(ui_Clock);
+    lv_obj_set_width(ui_Panel2, 100);
+    lv_obj_set_height(ui_Panel2, 50);
+    lv_obj_set_align(ui_Panel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Panel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    lv_obj_add_event_cb(ui_Panel2, ui_event_Panel2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);
 
 }
@@ -84,5 +91,6 @@ void ui_Clock_screen_destroy(void)
     ui_Clock = NULL;
     ui_Clock_Number = NULL;
     ui_Date = NULL;
+    ui_Panel2 = NULL;
 
 }

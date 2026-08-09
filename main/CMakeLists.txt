@@ -18,6 +18,7 @@ idf_component_register(
                               "./Wireless/Wireless.c"
                               "./APPC/appc_wifi_connect.c"
                               "./APPC/appc_sketch.c"
+                              "./APPC/appc_tasks.c"
                               "./APPC/appc.c"
 
                          INCLUDE_DIRS 

@@ -32,15 +32,6 @@ void ui_event_Weather(lv_event_t * e)
     }
 }
 
-void ui_event_Cloud(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_PRESSED) {
-        _ui_screen_change(&ui_Productivity_, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Productivity__screen_init);
-    }
-}
-
 // build funtions
 
 void ui_Weather_screen_init(void)
@@ -166,7 +157,6 @@ void ui_Weather_screen_init(void)
     lv_obj_set_style_text_opa(ui_W3_Num1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_W3_Num1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_Cloud, ui_event_Cloud, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Weather, ui_event_Weather, LV_EVENT_ALL, NULL);
 
 }

@@ -15,9 +15,10 @@ extern void ui_Clock_screen_init(void);
 extern void ui_Clock_screen_destroy(void);
 extern void ui_event_Clock(lv_event_t * e);
 extern lv_obj_t * ui_Clock;
-extern void ui_event_Clock_Number(lv_event_t * e);
 extern lv_obj_t * ui_Clock_Number;
 extern lv_obj_t * ui_Date;
+extern void ui_event_Panel2(lv_event_t * e);
+extern lv_obj_t * ui_Panel2;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

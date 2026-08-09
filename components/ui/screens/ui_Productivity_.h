@@ -15,6 +15,7 @@ extern void ui_Productivity__screen_init(void);
 extern void ui_Productivity__screen_destroy(void);
 extern lv_obj_t * ui_Productivity_;
 extern lv_obj_t * ui_Panel6;
+extern lv_obj_t * ui_CalMonth;
 extern lv_obj_t * ui_CalMonday;
 extern lv_obj_t * ui_CalSunday;
 extern lv_obj_t * ui_CalTuesday;
@@ -23,11 +24,9 @@ extern lv_obj_t * ui_CalThursday;
 extern lv_obj_t * ui_CalFriday;
 extern lv_obj_t * ui_CalSaturday;
 extern lv_obj_t * ui_CalenderHolder;
-extern lv_obj_t * ui_Day;
-extern lv_obj_t * ui_Label21;
-extern lv_obj_t * ui_Button2;
+extern lv_obj_t * ui_CalPrev;
 extern lv_obj_t * ui_Label22;
-extern lv_obj_t * ui_Button3;
+extern lv_obj_t * ui_CalNext;
 extern lv_obj_t * ui_Label23;
 // CUSTOM VARIABLES
 
