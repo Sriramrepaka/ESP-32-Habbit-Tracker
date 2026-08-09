@@ -15,17 +15,18 @@ extern void ui_Weather_screen_init(void);
 extern void ui_Weather_screen_destroy(void);
 extern void ui_event_Weather(lv_event_t * e);
 extern lv_obj_t * ui_Weather;
-extern lv_obj_t * ui_Pary_Cloud;
-extern lv_obj_t * ui_New_York;
+extern lv_obj_t * ui_Pary_Cloud1;
+extern lv_obj_t * ui_New_York1;
+extern void ui_event_Cloud(lv_event_t * e);
 extern lv_obj_t * ui_Cloud;
 extern lv_obj_t * ui_Celsius;
 extern lv_obj_t * ui_Weather_Icons;
 extern lv_obj_t * ui_w11;
 extern lv_obj_t * ui_w22;
 extern lv_obj_t * ui_w33;
-extern lv_obj_t * ui_W1_Num;
-extern lv_obj_t * ui_W2_Num;
-extern lv_obj_t * ui_W3_Num;
+extern lv_obj_t * ui_W1_Num1;
+extern lv_obj_t * ui_W2_Num1;
+extern lv_obj_t * ui_W3_Num1;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

@@ -14,7 +14,6 @@ lv_anim_t * sec_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
-void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
@@ -223,14 +222,6 @@ lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay)
 }
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event____initial_actions0(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        sec_Animation(ui_Sec, 0);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -251,9 +242,6 @@ void ui_init(void)
     ui_SettingsNotes_screen_init();
     ui_Productivity__screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
-    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
-
-    lv_disp_load_scr(ui____initial_actions0);
     lv_disp_load_scr(ui_Splash);
 }
 

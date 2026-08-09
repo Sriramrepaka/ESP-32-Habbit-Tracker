@@ -20,3 +20,7 @@ void ui_comp_Scrolldots_create_hook(lv_obj_t * comp)
 void ui_comp_Small_Label_create_hook(lv_obj_t * comp)
 {
 }
+
+void ui_comp_DayCell_create_hook(lv_obj_t * comp)
+{
+}

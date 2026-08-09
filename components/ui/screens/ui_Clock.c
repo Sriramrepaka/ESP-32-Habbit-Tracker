@@ -6,23 +6,6 @@
 #include "../ui.h"
 
 lv_obj_t * ui_Clock = NULL;
-lv_obj_t * ui_Clock_Panel = NULL;
-lv_obj_t * ui_Dot1 = NULL;
-lv_obj_t * ui_Dot2 = NULL;
-lv_obj_t * ui_Dot3 = NULL;
-lv_obj_t * ui_Dot4 = NULL;
-lv_obj_t * ui_Dot5 = NULL;
-lv_obj_t * ui_Dot6 = NULL;
-lv_obj_t * ui_Dot7 = NULL;
-lv_obj_t * ui_Dot8 = NULL;
-lv_obj_t * ui_Clock_Number1 = NULL;
-lv_obj_t * ui_Clock_Number2 = NULL;
-lv_obj_t * ui_Clock_Number3 = NULL;
-lv_obj_t * ui_Clock_Number4 = NULL;
-lv_obj_t * ui_Min = NULL;
-lv_obj_t * ui_Hour = NULL;
-lv_obj_t * ui_Sec = NULL;
-lv_obj_t * ui_Clock_Center = NULL;
 lv_obj_t * ui_Clock_Number = NULL;
 lv_obj_t * ui_Date = NULL;
 // event funtions
@@ -32,19 +15,24 @@ void ui_event_Clock(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Weather, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Weather_screen_init);
+        _ui_screen_change(&ui_Productivity_, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_Productivity__screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_Settings, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_Settings_screen_init);
     }
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        hour_Animation(ui_Hour, 200);
-        min_Animation(ui_Min, 400);
-    }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_BOTTOM) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_Sketchpad, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 500, 0, &ui_Sketchpad_screen_init);
+    }
+}
+
+void ui_event_Clock_Number(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_PRESSED) {
+        _ui_screen_change(&ui_Productivity_, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Productivity__screen_init);
     }
 }
 
@@ -59,139 +47,6 @@ void ui_Clock_screen_init(void)
     lv_obj_set_style_bg_img_src(ui_Clock, &ui_img_dark_dotted2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Clock, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Clock_Panel = lv_obj_create(ui_Clock);
-    lv_obj_set_width(ui_Clock_Panel, 180);
-    lv_obj_set_height(ui_Clock_Panel, 180);
-    lv_obj_set_x(ui_Clock_Panel, 0);
-    lv_obj_set_y(ui_Clock_Panel, 40);
-    lv_obj_set_align(ui_Clock_Panel, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Clock_Panel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Clock_Panel, 500, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Clock_Panel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Clock_Panel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot1 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot1, -40);
-    lv_obj_set_y(ui_Dot1, 15);
-    lv_obj_set_align(ui_Dot1, LV_ALIGN_TOP_RIGHT);
-    lv_obj_set_style_bg_color(ui_Dot1, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot2 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot2, -10);
-    lv_obj_set_y(ui_Dot2, 50);
-    lv_obj_set_style_bg_color(ui_Dot2, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot3 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot3, 40);
-    lv_obj_set_y(ui_Dot3, 15);
-    lv_obj_set_align(ui_Dot3, LV_ALIGN_TOP_LEFT);
-    lv_obj_set_style_bg_color(ui_Dot3, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot4 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot4, 10);
-    lv_obj_set_y(ui_Dot4, 50);
-    lv_obj_set_align(ui_Dot4, LV_ALIGN_TOP_LEFT);
-    lv_obj_set_style_bg_color(ui_Dot4, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot5 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot5, 10);
-    lv_obj_set_y(ui_Dot5, -50);
-    lv_obj_set_align(ui_Dot5, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_set_style_bg_color(ui_Dot5, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot6 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot6, 40);
-    lv_obj_set_y(ui_Dot6, -15);
-    lv_obj_set_align(ui_Dot6, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_set_style_bg_color(ui_Dot6, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot7 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot7, -10);
-    lv_obj_set_y(ui_Dot7, -50);
-    lv_obj_set_align(ui_Dot7, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_set_style_bg_color(ui_Dot7, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Dot8 = ui_Clock_Dot_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Dot8, -40);
-    lv_obj_set_y(ui_Dot8, -15);
-    lv_obj_set_align(ui_Dot8, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_set_style_bg_color(ui_Dot8, lv_color_hex(0xE8DCC8), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Dot8, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Clock_Number1 = ui_Small_Label_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Clock_Number1, 0);
-    lv_obj_set_y(ui_Clock_Number1, 0);
-    lv_obj_set_style_text_color(ui_Clock_Number1, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Clock_Number1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Clock_Number2 = ui_Small_Label_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Clock_Number2, 0);
-    lv_obj_set_y(ui_Clock_Number2, 0);
-    lv_obj_set_align(ui_Clock_Number2, LV_ALIGN_BOTTOM_MID);
-    lv_label_set_text(ui_Clock_Number2, "6");
-    lv_obj_set_style_text_color(ui_Clock_Number2, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Clock_Number2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Clock_Number3 = ui_Small_Label_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Clock_Number3, 0);
-    lv_obj_set_y(ui_Clock_Number3, 0);
-    lv_obj_set_align(ui_Clock_Number3, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_Clock_Number3, "9");
-    lv_obj_set_style_text_color(ui_Clock_Number3, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Clock_Number3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Clock_Number4 = ui_Small_Label_create(ui_Clock_Panel);
-    lv_obj_set_x(ui_Clock_Number4, 0);
-    lv_obj_set_y(ui_Clock_Number4, 0);
-    lv_obj_set_align(ui_Clock_Number4, LV_ALIGN_RIGHT_MID);
-    lv_label_set_text(ui_Clock_Number4, "3");
-    lv_obj_set_style_text_color(ui_Clock_Number4, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Clock_Number4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Min = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Min, &ui_img_min_new_png);
-    lv_obj_set_width(ui_Min, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Min, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Min, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Min, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Min, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Hour = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Hour, &ui_img_hour_new_png);
-    lv_obj_set_width(ui_Hour, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Hour, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Hour, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Hour, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Hour, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Sec = lv_img_create(ui_Clock_Panel);
-    lv_img_set_src(ui_Sec, &ui_img_sec_new_png);
-    lv_obj_set_width(ui_Sec, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Sec, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Sec, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Sec, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Sec, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_angle(ui_Sec, 150);
-
-    ui_Clock_Center = lv_obj_create(ui_Clock_Panel);
-    lv_obj_set_width(ui_Clock_Center, 8);
-    lv_obj_set_height(ui_Clock_Center, 8);
-    lv_obj_set_align(ui_Clock_Center, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Clock_Center, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Clock_Center, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Clock_Center, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Clock_Center, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Clock_Center, lv_color_hex(0xFF5C00), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Clock_Center, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_Clock_Center, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_Clock_Number = lv_label_create(ui_Clock);
     lv_obj_set_width(ui_Clock_Number, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Clock_Number, LV_SIZE_CONTENT);    /// 1
@@ -205,13 +60,18 @@ void ui_Clock_screen_init(void)
                                            _ui_theme_alpha_Neon_orange);
     lv_obj_set_style_text_font(ui_Clock_Number, &ui_font_Number, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Date = ui_Small_Label_create(ui_Clock);
+    ui_Date = lv_label_create(ui_Clock);
+    lv_obj_set_width(ui_Date, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Date, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Date, 0);
     lv_obj_set_y(ui_Date, 76);
+    lv_obj_set_align(ui_Date, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_Date, "Syncing...");
     lv_obj_set_style_text_color(ui_Date, lv_color_hex(0x8A3200), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Date, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Date, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    lv_obj_add_event_cb(ui_Clock_Number, ui_event_Clock_Number, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);
 
 }
@@ -222,23 +82,6 @@ void ui_Clock_screen_destroy(void)
 
     // NULL screen variables
     ui_Clock = NULL;
-    ui_Clock_Panel = NULL;
-    ui_Dot1 = NULL;
-    ui_Dot2 = NULL;
-    ui_Dot3 = NULL;
-    ui_Dot4 = NULL;
-    ui_Dot5 = NULL;
-    ui_Dot6 = NULL;
-    ui_Dot7 = NULL;
-    ui_Dot8 = NULL;
-    ui_Clock_Number1 = NULL;
-    ui_Clock_Number2 = NULL;
-    ui_Clock_Number3 = NULL;
-    ui_Clock_Number4 = NULL;
-    ui_Min = NULL;
-    ui_Hour = NULL;
-    ui_Sec = NULL;
-    ui_Clock_Center = NULL;
     ui_Clock_Number = NULL;
     ui_Date = NULL;
 

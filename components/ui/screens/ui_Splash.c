@@ -6,8 +6,8 @@
 #include "../ui.h"
 
 lv_obj_t * ui_Splash = NULL;
-lv_obj_t * ui_Demo = NULL;
-lv_obj_t * ui_Smart_Gadget = NULL;
+lv_obj_t * ui_Demo1 = NULL;
+lv_obj_t * ui_Smart_Gadget1 = NULL;
 lv_obj_t * ui_SLS_Logo = NULL;
 // event funtions
 void ui_event_Splash(lv_event_t * e)
@@ -16,8 +16,8 @@ void ui_event_Splash(lv_event_t * e)
 
     if(event_code == LV_EVENT_SCREEN_LOADED) {
         upanim_Animation(ui_SLS_Logo, 100);
-        upanim_Animation(ui_Smart_Gadget, 200);
-        upanim_Animation(ui_Demo, 300);
+        upanim_Animation(ui_Demo1, 200);
+        upanim_Animation(ui_Smart_Gadget1, 300);
         _ui_screen_change(&ui_Clock, LV_SCR_LOAD_ANIM_FADE_ON, 200, 1400, &ui_Clock_screen_init);
     }
 }
@@ -34,23 +34,29 @@ void ui_Splash_screen_init(void)
     lv_obj_set_style_bg_img_opa(ui_Splash, 115, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Splash, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Demo = ui_Small_Label_create(ui_Splash);
-    lv_obj_set_x(ui_Demo, 0);
-    lv_obj_set_y(ui_Demo, 75);
-    lv_obj_set_align(ui_Demo, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Demo, "v0.1");
-    lv_obj_set_style_text_color(ui_Demo, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Demo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Demo1 = lv_label_create(ui_Splash);
+    lv_obj_set_width(ui_Demo1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Demo1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Demo1, 0);
+    lv_obj_set_y(ui_Demo1, 75);
+    lv_obj_set_align(ui_Demo1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Demo1, "v0.1");
+    lv_obj_set_style_text_color(ui_Demo1, lv_color_hex(0xC8A96E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Demo1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Demo1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Smart_Gadget = ui_Small_Label_create(ui_Splash);
-    lv_obj_set_x(ui_Smart_Gadget, 0);
-    lv_obj_set_y(ui_Smart_Gadget, 50);
-    lv_obj_set_align(ui_Smart_Gadget, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Smart_Gadget, "Habbit tracker");
-    ui_object_set_themeable_style_property(ui_Smart_Gadget, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
+    ui_Smart_Gadget1 = lv_label_create(ui_Splash);
+    lv_obj_set_width(ui_Smart_Gadget1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Smart_Gadget1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Smart_Gadget1, 0);
+    lv_obj_set_y(ui_Smart_Gadget1, 50);
+    lv_obj_set_align(ui_Smart_Gadget1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Smart_Gadget1, "Habbit tracker");
+    ui_object_set_themeable_style_property(ui_Smart_Gadget1, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_COLOR,
                                            _ui_theme_color_Neon_orange);
-    ui_object_set_themeable_style_property(ui_Smart_Gadget, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
+    ui_object_set_themeable_style_property(ui_Smart_Gadget1, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_TEXT_OPA,
                                            _ui_theme_alpha_Neon_orange);
+    lv_obj_set_style_text_font(ui_Smart_Gadget1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SLS_Logo = lv_img_create(ui_Splash);
     lv_img_set_src(ui_SLS_Logo, &ui_img_check_png);
@@ -72,8 +78,8 @@ void ui_Splash_screen_destroy(void)
 
     // NULL screen variables
     ui_Splash = NULL;
-    ui_Demo = NULL;
-    ui_Smart_Gadget = NULL;
+    ui_Demo1 = NULL;
+    ui_Smart_Gadget1 = NULL;
     ui_SLS_Logo = NULL;
 
 }

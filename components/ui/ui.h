@@ -42,16 +42,12 @@ extern lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
-void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_footer_lodyas_short_png);    // assets/footer_lodyas_short.png
 LV_IMG_DECLARE(ui_img_check_png);    // assets/check.png
 LV_IMG_DECLARE(ui_img_dark_dotted2_png);    // assets/dark_dotted2.png
-LV_IMG_DECLARE(ui_img_min_new_png);    // assets/min_new.png
-LV_IMG_DECLARE(ui_img_hour_new_png);    // assets/hour_new.png
-LV_IMG_DECLARE(ui_img_sec_new_png);    // assets/sec_new.png
 LV_IMG_DECLARE(ui_img_cloud_png);    // assets/cloud.png
 LV_IMG_DECLARE(ui_img_weather_1_png);    // assets/weather_1.png
 LV_IMG_DECLARE(ui_img_weather_2_png);    // assets/weather_2.png

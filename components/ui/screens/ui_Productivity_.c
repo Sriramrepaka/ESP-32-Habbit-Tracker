@@ -6,7 +6,21 @@
 #include "../ui.h"
 
 lv_obj_t * ui_Productivity_ = NULL;
-lv_obj_t * ui_ProdCalender = NULL;
+lv_obj_t * ui_Panel6 = NULL;
+lv_obj_t * ui_CalMonday = NULL;
+lv_obj_t * ui_CalSunday = NULL;
+lv_obj_t * ui_CalTuesday = NULL;
+lv_obj_t * ui_CalWednesday = NULL;
+lv_obj_t * ui_CalThursday = NULL;
+lv_obj_t * ui_CalFriday = NULL;
+lv_obj_t * ui_CalSaturday = NULL;
+lv_obj_t * ui_CalenderHolder = NULL;
+lv_obj_t * ui_Day = NULL;
+lv_obj_t * ui_Label21 = NULL;
+lv_obj_t * ui_Button2 = NULL;
+lv_obj_t * ui_Label22 = NULL;
+lv_obj_t * ui_Button3 = NULL;
+lv_obj_t * ui_Label23 = NULL;
 // event funtions
 
 // build funtions
@@ -18,13 +32,163 @@ void ui_Productivity__screen_init(void)
     lv_obj_set_style_bg_img_src(ui_Productivity_, &ui_img_dark_dotted2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_tiled(ui_Productivity_, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ProdCalender = lv_calendar_create(ui_Productivity_);
-    lv_calendar_set_today_date(ui_ProdCalender, 2026, 3, 21);
-    lv_calendar_set_showed_date(ui_ProdCalender, 2026, 3);
-    lv_obj_t * ui_ProdCalender_header = lv_calendar_header_arrow_create(ui_ProdCalender);
-    lv_obj_set_width(ui_ProdCalender, 230);
-    lv_obj_set_height(ui_ProdCalender, 240);
-    lv_obj_set_align(ui_ProdCalender, LV_ALIGN_CENTER);
+    ui_Panel6 = lv_obj_create(ui_Productivity_);
+    lv_obj_set_width(ui_Panel6, 230);
+    lv_obj_set_height(ui_Panel6, 230);
+    lv_obj_set_x(ui_Panel6, 0);
+    lv_obj_set_y(ui_Panel6, -40);
+    lv_obj_set_align(ui_Panel6, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Panel6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel6, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel6, lv_color_hex(0x414141), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalMonday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalMonday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalMonday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalMonday, -63);
+    lv_obj_set_y(ui_CalMonday, -113);
+    lv_obj_set_align(ui_CalMonday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalMonday, "Mo");
+    lv_obj_set_style_text_color(ui_CalMonday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalMonday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalSunday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalSunday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalSunday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalSunday, -95);
+    lv_obj_set_y(ui_CalSunday, -113);
+    lv_obj_set_align(ui_CalSunday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalSunday, "Su");
+    lv_obj_set_style_text_color(ui_CalSunday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalSunday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalTuesday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalTuesday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalTuesday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalTuesday, -31);
+    lv_obj_set_y(ui_CalTuesday, -113);
+    lv_obj_set_align(ui_CalTuesday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalTuesday, "Tu");
+    lv_obj_set_style_text_color(ui_CalTuesday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalTuesday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalWednesday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalWednesday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalWednesday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalWednesday, 1);
+    lv_obj_set_y(ui_CalWednesday, -113);
+    lv_obj_set_align(ui_CalWednesday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalWednesday, "We");
+    lv_obj_set_style_text_color(ui_CalWednesday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalWednesday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalThursday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalThursday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalThursday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalThursday, 33);
+    lv_obj_set_y(ui_CalThursday, -113);
+    lv_obj_set_align(ui_CalThursday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalThursday, "Th");
+    lv_obj_set_style_text_color(ui_CalThursday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalThursday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalFriday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalFriday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalFriday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalFriday, 65);
+    lv_obj_set_y(ui_CalFriday, -113);
+    lv_obj_set_align(ui_CalFriday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalFriday, "Fr");
+    lv_obj_set_style_text_color(ui_CalFriday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalFriday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalSaturday = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_CalSaturday, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalSaturday, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CalSaturday, 97);
+    lv_obj_set_y(ui_CalSaturday, -113);
+    lv_obj_set_align(ui_CalSaturday, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalSaturday, "Sa");
+    lv_obj_set_style_text_color(ui_CalSaturday, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalSaturday, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalenderHolder = lv_obj_create(ui_Productivity_);
+    lv_obj_remove_style_all(ui_CalenderHolder);
+    lv_obj_set_width(ui_CalenderHolder, 228);
+    lv_obj_set_height(ui_CalenderHolder, 162);
+    lv_obj_set_x(ui_CalenderHolder, 0);
+    lv_obj_set_y(ui_CalenderHolder, -20);
+    lv_obj_set_align(ui_CalenderHolder, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_CalenderHolder, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_flex_align(ui_CalenderHolder, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY);
+    lv_obj_clear_flag(ui_CalenderHolder, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_CalenderHolder, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_CalenderHolder, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Day = ui_DayCell_create(ui_Productivity_);
+    lv_obj_set_x(ui_Day, 1);
+    lv_obj_set_y(ui_Day, -84);
+
+    lv_obj_set_style_bg_color(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL11), lv_color_hex(0x000000),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL11), 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL12), lv_color_hex(0x000000),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL12), 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL14), lv_color_hex(0x000000),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_comp_get_child(ui_Day, UI_COMP_DAYCELL_PANEL14), 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label21 = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_Label21, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label21, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label21, 0);
+    lv_obj_set_y(ui_Label21, -139);
+    lv_obj_set_align(ui_Label21, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label21, "December");
+    lv_obj_set_style_text_color(ui_Label21, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label21, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Button2 = lv_btn_create(ui_Productivity_);
+    lv_obj_set_width(ui_Button2, 25);
+    lv_obj_set_height(ui_Button2, 25);
+    lv_obj_set_x(ui_Button2, -98);
+    lv_obj_set_y(ui_Button2, -138);
+    lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Button2, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label22 = lv_label_create(ui_Button2);
+    lv_obj_set_width(ui_Label22, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label22, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Label22, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label22, "<");
+    lv_obj_set_style_text_color(ui_Label22, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label22, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label22, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Button3 = lv_btn_create(ui_Productivity_);
+    lv_obj_set_width(ui_Button3, 25);
+    lv_obj_set_height(ui_Button3, 25);
+    lv_obj_set_x(ui_Button3, 96);
+    lv_obj_set_y(ui_Button3, -138);
+    lv_obj_set_align(ui_Button3, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Button3, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_Button3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Button3, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label23 = lv_label_create(ui_Button3);
+    lv_obj_set_width(ui_Label23, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label23, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Label23, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label23, ">");
+    lv_obj_set_style_text_color(ui_Label23, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label23, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label23, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 }
 
@@ -34,6 +198,20 @@ void ui_Productivity__screen_destroy(void)
 
     // NULL screen variables
     ui_Productivity_ = NULL;
-    ui_ProdCalender = NULL;
+    ui_Panel6 = NULL;
+    ui_CalMonday = NULL;
+    ui_CalSunday = NULL;
+    ui_CalTuesday = NULL;
+    ui_CalWednesday = NULL;
+    ui_CalThursday = NULL;
+    ui_CalFriday = NULL;
+    ui_CalSaturday = NULL;
+    ui_CalenderHolder = NULL;
+    ui_Day = NULL;
+    ui_Label21 = NULL;
+    ui_Button2 = NULL;
+    ui_Label22 = NULL;
+    ui_Button3 = NULL;
+    ui_Label23 = NULL;
 
 }

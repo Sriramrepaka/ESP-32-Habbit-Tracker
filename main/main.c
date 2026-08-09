@@ -57,6 +57,7 @@ void SPIFFS_Init(void) {
         printf("SPIFFS mounted successfully!\n");
     }
 }
+
 void app_main(void)
 {
     Driver_Init();
@@ -69,7 +70,9 @@ void app_main(void)
     ui_init();
     appc_init();
     appc_sketch_init();
+    //appc_build_calendar(3,31);
     printf("Here while booting 2\n");
+
 
 /********************* Demo *********************/
     // Lvgl_Example1();

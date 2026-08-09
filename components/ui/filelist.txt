@@ -1,7 +1,4 @@
-components/ui_comp_alarm_comp.c
-components/ui_comp_clock_dot.c
-components/ui_comp_scrolldots.c
-components/ui_comp_small_label.c
+components/ui_comp_daycell.c
 components/ui_comp.c
 screens/ui_Splash.c
 screens/ui_Clock.c
@@ -21,9 +18,6 @@ ui_events.c
 images/ui_img_footer_lodyas_short_png.c
 images/ui_img_check_png.c
 images/ui_img_dark_dotted2_png.c
-images/ui_img_min_new_png.c
-images/ui_img_hour_new_png.c
-images/ui_img_sec_new_png.c
 images/ui_img_cloud_png.c
 images/ui_img_weather_1_png.c
 images/ui_img_weather_2_png.c

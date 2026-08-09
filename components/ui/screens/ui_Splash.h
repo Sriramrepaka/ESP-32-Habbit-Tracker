@@ -15,8 +15,8 @@ extern void ui_Splash_screen_init(void);
 extern void ui_Splash_screen_destroy(void);
 extern void ui_event_Splash(lv_event_t * e);
 extern lv_obj_t * ui_Splash;
-extern lv_obj_t * ui_Demo;
-extern lv_obj_t * ui_Smart_Gadget;
+extern lv_obj_t * ui_Demo1;
+extern lv_obj_t * ui_Smart_Gadget1;
 extern lv_obj_t * ui_SLS_Logo;
 // CUSTOM VARIABLES
 

@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
+#include "ui.h"
+#include "components/ui_comp_daycell.h" 
 
 
 static const char *TAG = "APPC_MAIN";
@@ -130,17 +132,6 @@ void appc_update_clock_ui(void){
         strftime(time_buf, sizeof(time_buf), "%H:%M", &timeinfo);
         //printf("Time = %s\n",time_buf);
         lv_label_set_text(ui_Clock_Number, time_buf);
-
-        int minutes = timeinfo.tm_min; 
-        uint16_t min_angle = minutes * 60;
-        lv_img_set_angle(ui_Min, min_angle);
-
-        int hours = timeinfo.tm_hour; 
-        if (hours >= 12) hours -= 12; // Convert 24h to 12h format
-
-        // (hours * 300) + (minutes * 5)
-        uint16_t hour_angle = (hours * 300) + (timeinfo.tm_min * 5);
-        lv_img_set_angle(ui_Hour, hour_angle);
     }
 }
 
@@ -164,6 +155,143 @@ void appc_clock_timer_cb(lv_timer_t * timer) {
 
 void appc_date_timer_cb(lv_timer_t * timer){
     appc_update_date_ui();  
+}
+
+void appc_build_calendar(int start_offset, int total_days_in_month) {
+
+    if (ui_CalenderHolder == NULL) {
+        // Parent object isn't loaded yet!
+        ESP_LOGE("EEEE","Parent object isnt loaded yet!");
+        return; 
+    }
+
+    for (int i = 0; i < 35; i++) {
+        // 1. Instantiate 1 DayCell component inside your SLS Flex container
+        lv_obj_t * day_cell = ui_DayCell_create(ui_CalenderHolder);
+
+        // 2. Access internal child widgets of the component
+        // Note: SLS components save children by index (0=Outer, 1=Middle, 2=Inner, 3=Label)
+        lv_obj_t * outer_red   = lv_obj_get_child(day_cell, 0);
+        lv_obj_t * middle_blue = lv_obj_get_child(day_cell, 2);
+        lv_obj_t * inner_green = lv_obj_get_child(day_cell, 4);
+        lv_obj_t * date_label  = lv_obj_get_child(day_cell, 6);
+
+        // 3. Set default state: Hide all rings
+        lv_obj_add_flag(outer_red, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(middle_blue, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(inner_green, LV_OBJ_FLAG_HIDDEN);
+
+        // 4. Calculate and display the date number
+        int day_number = i - start_offset + 1;
+        if (day_number > 0 && day_number <= total_days_in_month) {
+            lv_label_set_text_fmt(date_label, "%d", day_number);
+        } else {
+            lv_label_set_text(date_label, ""); // Hide date for trailing/leading padding days
+        }
+    }
+}
+
+// 1. Function to build the 35 lightweight cells
+void appc_build_lightweight_calendar(lv_obj_t * parent, int start_offset, int total_days) {
+    // Clear any previous cells if calling again
+    lv_obj_clean(parent);
+
+    for (int i = 0; i < 35; i++) {
+        // --- 1. Parent Cell Container ---
+        lv_obj_t * cell = lv_obj_create(parent);
+        lv_obj_remove_style_all(cell);
+        lv_obj_set_size(cell, 30, 30);
+        lv_obj_clear_flag(cell, LV_OBJ_FLAG_SCROLLABLE);
+
+        // --- 2. Outer Red Ring (Task 1) ---
+        lv_obj_t * r1 = lv_obj_create(cell);
+        lv_obj_remove_style_all(r1); // Remove default panel background/padding
+        lv_obj_set_size(r1, 28, 28);
+        lv_obj_set_style_radius(r1, 14, 0);
+        lv_obj_set_style_border_color(r1, lv_color_hex(0xFFFF00), 0);
+        lv_obj_set_style_border_width(r1, 2, 0);
+        lv_obj_set_style_bg_opa(r1, LV_OPA_TRANSP, 0); // Keep center transparent
+        lv_obj_center(r1);
+        lv_obj_add_flag(r1, LV_OBJ_FLAG_HIDDEN); // Hide by default
+
+        // --- 3. Middle Blue Ring (Task 2) ---
+        lv_obj_t * r2 = lv_obj_create(cell);
+        lv_obj_remove_style_all(r2);
+        lv_obj_set_size(r2, 22, 22);
+        lv_obj_set_style_radius(r2, 11, 0);
+        lv_obj_set_style_border_color(r2, lv_color_hex(0x2DCBD7), 0);
+        lv_obj_set_style_border_width(r2, 2, 0);
+        lv_obj_set_style_bg_opa(r2, LV_OPA_TRANSP, 0);
+        lv_obj_center(r2);
+        lv_obj_add_flag(r2, LV_OBJ_FLAG_HIDDEN); // Hide by default
+
+        // --- 4. Inner Green Ring (Task 3) ---
+        lv_obj_t * r3 = lv_obj_create(cell);
+        lv_obj_remove_style_all(r3);
+        lv_obj_set_size(r3, 16, 16);
+        lv_obj_set_style_radius(r3, 8, 0);
+        lv_obj_set_style_border_color(r3, lv_color_hex(0x34C759), 0);
+        lv_obj_set_style_border_width(r3, 2, 0);
+        lv_obj_set_style_bg_opa(r3, LV_OPA_TRANSP, 0);
+        lv_obj_center(r3);
+        lv_obj_add_flag(r3, LV_OBJ_FLAG_HIDDEN); // Hide by default
+
+        // --- 5. Date Text Label ---
+        lv_obj_t * lbl = lv_label_create(cell);
+        // 1. Set Text Color (e.g., Hex color #FFFFFF)
+        lv_obj_set_style_text_color(lbl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // 2. Set Font Size (e.g., Montserrat 12pt)
+        lv_obj_set_style_text_font(lbl, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        int day_num = i - start_offset + 1;
+
+        if (day_num > 0 && day_num <= total_days) {
+            lv_label_set_text_fmt(lbl, "%d", day_num);
+        } else {
+            lv_label_set_text(lbl, ""); // Keep leading/trailing padding days blank
+        }
+        lv_obj_center(lbl);
+    }
+}
+
+static void productivity_screen_event_cb(lv_event_t * e) {
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (code == LV_EVENT_SCREEN_LOADED) {
+        // Build 35 cells ONLY when the screen appears
+        appc_build_lightweight_calendar(ui_CalenderHolder, 3, 31);
+        
+        // (Optional) Mark task completion status for specific dates
+        // set_day_tasks(ui_CalenderHolder, 15, 3, true, true, false);
+    } 
+    else if (code == LV_EVENT_SCREEN_UNLOADED) {
+        // Delete all calendar objects from memory when user leaves the screen
+        if (ui_CalenderHolder) {
+            lv_obj_clean(ui_CalenderHolder);
+        }
+    }
+}
+
+void appc_set_day_tasks(lv_obj_t * parent, int day_num, int start_offset, bool task1_red, bool task2_blue, bool task3_green) {
+    int cell_index = day_num + start_offset - 1;
+    lv_obj_t * cell = lv_obj_get_child(parent, cell_index);
+    if (!cell) return;
+
+    // Get child ring handles by their creation index
+    lv_obj_t * r1 = lv_obj_get_child(cell, 0); // Red
+    lv_obj_t * r2 = lv_obj_get_child(cell, 1); // Blue
+    lv_obj_t * r3 = lv_obj_get_child(cell, 2); // Green
+
+    // Toggle visibility based on state
+    if (task1_red)   lv_obj_clear_flag(r1, LV_OBJ_FLAG_HIDDEN);
+    else            lv_obj_add_flag(r1, LV_OBJ_FLAG_HIDDEN);
+
+    if (task2_blue)  lv_obj_clear_flag(r2, LV_OBJ_FLAG_HIDDEN);
+    else            lv_obj_add_flag(r2, LV_OBJ_FLAG_HIDDEN);
+
+    if (task3_green) lv_obj_clear_flag(r3, LV_OBJ_FLAG_HIDDEN);
+    else            lv_obj_add_flag(r3, LV_OBJ_FLAG_HIDDEN);
 }
 
 void appc_init(void) {
@@ -193,7 +321,7 @@ void appc_init(void) {
     // This will trigger the sync task that waits for Driver_Init to finish
     //app_wifi_scan(); 
     
-    // 2. Initialize other modules later (e.g., app_audio_logic_init();)
+    // 2. Initialize other modules later
 
     //Wifi connect button event
     lv_timer_create(appc_wifi_ui_timer_cb, 500, NULL);
@@ -213,6 +341,7 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
     
     //Play_Music("/sdcard/Audio", "SadaSiva.mp3");
 
