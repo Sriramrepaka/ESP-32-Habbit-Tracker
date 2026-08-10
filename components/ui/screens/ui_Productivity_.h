@@ -28,6 +28,10 @@ extern lv_obj_t * ui_CalPrev;
 extern lv_obj_t * ui_Label22;
 extern lv_obj_t * ui_CalNext;
 extern lv_obj_t * ui_Label23;
+extern lv_obj_t * ui_CalYear;
+extern void ui_event_WifiCloseButton2(lv_event_t * e);
+extern lv_obj_t * ui_WifiCloseButton2;
+extern lv_obj_t * ui_Label12;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

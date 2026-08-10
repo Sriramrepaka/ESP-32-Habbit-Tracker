@@ -157,40 +157,6 @@ void appc_date_timer_cb(lv_timer_t * timer){
     appc_update_date_ui();  
 }
 
-void appc_build_calendar(int start_offset, int total_days_in_month) {
-
-    if (ui_CalenderHolder == NULL) {
-        // Parent object isn't loaded yet!
-        ESP_LOGE("EEEE","Parent object isnt loaded yet!");
-        return; 
-    }
-
-    for (int i = 0; i < 35; i++) {
-        // 1. Instantiate 1 DayCell component inside your SLS Flex container
-        lv_obj_t * day_cell = ui_DayCell_create(ui_CalenderHolder);
-
-        // 2. Access internal child widgets of the component
-        // Note: SLS components save children by index (0=Outer, 1=Middle, 2=Inner, 3=Label)
-        lv_obj_t * outer_red   = lv_obj_get_child(day_cell, 0);
-        lv_obj_t * middle_blue = lv_obj_get_child(day_cell, 2);
-        lv_obj_t * inner_green = lv_obj_get_child(day_cell, 4);
-        lv_obj_t * date_label  = lv_obj_get_child(day_cell, 6);
-
-        // 3. Set default state: Hide all rings
-        lv_obj_add_flag(outer_red, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(middle_blue, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(inner_green, LV_OBJ_FLAG_HIDDEN);
-
-        // 4. Calculate and display the date number
-        int day_number = i - start_offset + 1;
-        if (day_number > 0 && day_number <= total_days_in_month) {
-            lv_label_set_text_fmt(date_label, "%d", day_number);
-        } else {
-            lv_label_set_text(date_label, ""); // Hide date for trailing/leading padding days
-        }
-    }
-}
-
 void appc_init(void) {
     ESP_LOGI(TAG, "Initializing Application Controller Layer...");
     ESP_LOGI(TAG, "APPC Layer Started.");
@@ -249,6 +215,12 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
+
+    lv_obj_add_event_cb(ui_CalPrev, appc_task_cal_prev, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_CalNext, appc_task_cal_next, LV_EVENT_CLICKED, NULL);
+
+    appc_sketch_init();
+    appc_alarm_init();
     
     //Play_Music("/sdcard/Audio", "SadaSiva.mp3");
 

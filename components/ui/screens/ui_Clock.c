@@ -73,10 +73,13 @@ void ui_Clock_screen_init(void)
     lv_obj_set_style_text_font(ui_Date, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel2 = lv_obj_create(ui_Clock);
-    lv_obj_set_width(ui_Panel2, 100);
-    lv_obj_set_height(ui_Panel2, 50);
+    lv_obj_set_width(ui_Panel2, 190);
+    lv_obj_set_height(ui_Panel2, 190);
+    lv_obj_set_x(ui_Panel2, 0);
+    lv_obj_set_y(ui_Panel2, 44);
     lv_obj_set_align(ui_Panel2, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Panel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel2, 95, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Panel2, ui_event_Panel2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);

@@ -67,12 +67,12 @@ void appc_task_get_date(void){
     }  
 }
 
-// 1. Function to build the 35 lightweight cells
+// 1. Function to build the 42 lightweight cells
 void appc_build_lightweight_calendar(lv_obj_t * parent, int start_offset, int total_days) {
     // Clear any previous cells if calling again
     lv_obj_clean(parent);
 
-    for (int i = 0; i < 35; i++) {
+    for (int i = 0; i < 42; i++) {
         // --- 1. Parent Cell Container ---
         lv_obj_t * cell = lv_obj_create(parent);
         lv_obj_remove_style_all(cell);
@@ -176,6 +176,8 @@ void appc_build_lightweight_calendar(lv_obj_t * parent, int start_offset, int to
         lv_label_set_text(ui_CalMonth,"N/A");
         break;
     }
+
+    lv_label_set_text_fmt(ui_CalYear, "%d", cur_year);
 }
 
 void load_month_from_sd(int year, int month) {
@@ -220,7 +222,7 @@ void productivity_screen_event_cb(lv_event_t * e) {
         // 1. Read history from SD Card for target month
         load_month_from_sd(cur_year, cur_month); 
 
-        // 2. Build the 35 lightweight cells
+        // 2. Build the 42 lightweight cells
         appc_build_lightweight_calendar(ui_CalenderHolder, cur_month_offset, cur_month_days);
 
         // 3. Update ring visibilities based on loaded SD data
@@ -265,6 +267,48 @@ void toggle_task_and_save(int year, int month, int day, int task_num) {
     else{
         ESP_LOGI(TAG,"Failed to save task.....");
     }
+}
+
+// Centralized function to rebuild calendar UI for cur_year & cur_month
+void appc_render_calendar(void) {
+    if (!ui_CalenderHolder) return;
+
+    // 1. Recalculate offset and total days for the target month
+    cur_month_days = get_days_in_month(cur_year, cur_month);
+    cur_month_offset = get_month_start_offset(cur_year, cur_month);
+
+    // 2. Read history from SD Card for target month
+    load_month_from_sd(cur_year, cur_month);
+
+    // 3. Rebuild calendar cells and update Month/Year labels
+    appc_build_lightweight_calendar(ui_CalenderHolder, cur_month_offset, cur_month_days);
+
+    // 4. Update ring visibilities using cur_month_offset (NOT hardcoded 3)
+    for (int day = 1; day <= cur_month_days; day++) {
+        day_task_status_t status = current_month_tasks[day - 1];
+        appc_set_day_tasks(ui_CalenderHolder, day, cur_month_offset, 
+                           status.task_one, status.task_two, status.task_three);
+    }
+}
+
+// Previous Month Action
+void appc_task_cal_prev(lv_event_t * e) {
+    cur_month--;
+    if (cur_month < 1) {
+        cur_month = 12;
+        cur_year--;
+    }
+    appc_render_calendar();
+}
+
+// Next Month Action
+void appc_task_cal_next(lv_event_t * e) {
+    cur_month++;
+    if (cur_month > 12) {
+        cur_month = 1;
+        cur_year++;
+    }
+    appc_render_calendar();
 }
 
 

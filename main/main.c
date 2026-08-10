@@ -69,7 +69,6 @@ void app_main(void)
     LVGL_Init();   // returns the screen object
     ui_init();
     appc_init();
-    appc_sketch_init();
     printf("Here while booting 2\n");
 
 

@@ -14,5 +14,7 @@ void appc_set_day_tasks(lv_obj_t * parent, int day_num, int start_offset, bool t
 void productivity_screen_event_cb(lv_event_t * e);
 void toggle_task_and_save(int year, int month, int day, int task_num);
 void appc_task_get_date(void);
+void appc_task_cal_prev(lv_event_t * e);
+void appc_task_cal_next(lv_event_t * e);
 
 #endif /* APPC_TASKS_H */
