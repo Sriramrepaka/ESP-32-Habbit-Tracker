@@ -2,6 +2,7 @@
 #define APPC_ALARM_H
 
 #include "ui.h"
+#include "PCM5101.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +21,8 @@ typedef struct {
 
 // Main module initializer (called inside appc_init)
 void appc_alarm_init(void);
+// Evaluates active alarms against current system time
+void appc_alarm_check_time(int current_hour, int current_min, int current_sec);
 
 #ifdef __cplusplus
 }

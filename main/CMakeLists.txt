@@ -20,6 +20,7 @@ idf_component_register(
                               "./APPC/appc_sketch.c"
                               "./APPC/appc_tasks.c"
                               "./APPC/appc_alarm.c"
+                              "./APPC/alarm_icon.c"
                               "./APPC/appc.c"
 
                          INCLUDE_DIRS 

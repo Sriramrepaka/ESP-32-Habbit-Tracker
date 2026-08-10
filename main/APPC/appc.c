@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "ui.h"
-#include "components/ui_comp_daycell.h" 
+ 
 
 
 static const char *TAG = "APPC_MAIN";
@@ -132,6 +132,7 @@ void appc_update_clock_ui(void){
         strftime(time_buf, sizeof(time_buf), "%H:%M", &timeinfo);
         //printf("Time = %s\n",time_buf);
         lv_label_set_text(ui_Clock_Number, time_buf);
+        appc_alarm_check_time(timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
     }
 }
 
