@@ -31,11 +31,11 @@ void ui_event_Alarm(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Weather, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_Weather_screen_init);
+        _ui_screen_change(&ui_Weather, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0, &ui_Weather_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_Settings, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_Settings_screen_init);
+        _ui_screen_change(&ui_Settings, LV_SCR_LOAD_ANIM_MOVE_LEFT, 0, 0, &ui_Settings_screen_init);
     }
 }
 

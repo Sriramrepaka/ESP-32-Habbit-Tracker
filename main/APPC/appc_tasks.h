@@ -16,5 +16,7 @@ void toggle_task_and_save(int year, int month, int day, int task_num);
 void appc_task_get_date(void);
 void appc_task_cal_prev(lv_event_t * e);
 void appc_task_cal_next(lv_event_t * e);
+void appc_render_calendar(void);
+void appc_tasks_init(void);
 
 #endif /* APPC_TASKS_H */

@@ -12,73 +12,93 @@
 
 static const char *TAG = "APPC_MAIN";
 
-void appc_sync_bootup_sound(void) {
-    const char *sd_path = "/sdcard/Audio/bootup.mp3";
-    const char *spiffs_path = "/spiffs/bootup.mp3";
+static void sync_single_file(const char *src_path, const char *dst_path) {
+    struct stat src_stat, dst_stat;
 
-    struct stat sd_stat, spiffs_stat;
+    if (stat(src_path, &src_stat) != 0) return;
+
     bool needs_update = false;
+    if (stat(dst_path, &dst_stat) != 0) {
+        ESP_LOGI(TAG, "New file detected: %s", dst_path);
+        needs_update = true;
+    } else if (src_stat.st_size != dst_stat.st_size) {
+        ESP_LOGI(TAG, "Size mismatch for %s. Syncing...", dst_path);
+        needs_update = true;
+    }
 
-    // 1. Check if the SD card file even exists
-    if (stat(sd_path, &sd_stat) != 0) {
-        ESP_LOGI("SYNC", "No bootup.mp3 found on SD card. Skipping sync.");
+    if (!needs_update) {
+        ESP_LOGI(TAG, "Already up to date: %s", dst_path);
         return;
     }
 
-    // 2. Check if the SPIFFS file exists and compare sizes
-    if (stat(spiffs_path, &spiffs_stat) != 0) {
-        ESP_LOGI("SYNC", "Bootup sound not in flash yet. Updating...");
-        needs_update = true;
-    } else if (sd_stat.st_size != spiffs_stat.st_size) {
-        ESP_LOGI("SYNC", "Bootup sound sizes differ (SD: %ld, Flash: %ld). Updating...", 
-                 sd_stat.st_size, spiffs_stat.st_size);
-        needs_update = true;
+    FILE *src = fopen(src_path, "rb");
+    FILE *dst = fopen(dst_path, "wb");
+
+    if (!src || !dst) {
+        ESP_LOGE(TAG, "Failed to open handles: %s", dst_path);
+        if (src) fclose(src);
+        if (dst) fclose(dst);
+        return;
     }
 
-    // 3. Perform the copy if needed
-    if (needs_update) {
-        FILE *src = fopen(sd_path, "rb");
-        FILE *dst = fopen(spiffs_path, "wb");
-
-        if (src == NULL || dst == NULL) {
-            ESP_LOGE("SYNC", "Failed to open files for syncing!");
-            if (src) fclose(src);
-            if (dst) fclose(dst);
-            return;
-        }
-
-        // MEMORY SAFE COPY: Transfer 2KB at a time so we don't crash the RAM
-        size_t chunk_size = 2048;
-        uint8_t *buffer = malloc(chunk_size);
-        if (buffer == NULL) {
-            ESP_LOGE("SYNC", "Failed to allocate memory for file copy.");
-            fclose(src);
-            fclose(dst);
-            return;
-        }
-
-        size_t bytes_read;
-        size_t total_written = 0;
-        
-        ESP_LOGI("SYNC", "Copying audio file to internal flash... Please wait.");
-        
-        while ((bytes_read = fread(buffer, 1, chunk_size, src)) > 0) {
-            fwrite(buffer, 1, bytes_read, dst);
-            total_written += bytes_read;
-        }
-
-        free(buffer);
+    size_t chunk_size = 2048;
+    uint8_t *buffer = malloc(chunk_size);
+    if (!buffer) {
+        ESP_LOGE(TAG, "Malloc failed");
         fclose(src);
         fclose(dst);
-
-        ESP_LOGI("SYNC", "Sync complete! Wrote %zu bytes to flash.", total_written);
-    } else {
-        ESP_LOGI("SYNC", "Bootup sound is already up to date.");
+        return;
     }
+
+    size_t bytes_read;
+    size_t total_written = 0;
+    while ((bytes_read = fread(buffer, 1, chunk_size, src)) > 0) {
+        size_t bytes_written = fwrite(buffer, 1, bytes_read, dst);
+        if (bytes_written < bytes_read) {
+            ESP_LOGE(TAG, "Write error! SPIFFS partition full?");
+            break;
+        }
+        total_written += bytes_written;
+    }
+
+    free(buffer);
+    fclose(src);
+    fclose(dst);
+
+    ESP_LOGI(TAG, "Synced %s (%zu bytes)", dst_path, total_written);
+}
+
+void appc_sync_audio_folder(void) {
+    const char *sd_dir_path = "/sdcard/Audio";
+    DIR *dir = opendir(sd_dir_path);
+
+    if (!dir) {
+        ESP_LOGE(TAG, "Could not open SD audio directory.");
+        return;
+    }
+
+    struct dirent *entry;
+    
+    // Increased from 128 to 300 to hold max prefix + 256-byte d_name
+    char src_path[300];
+    char dst_path[300];
+
+    while ((entry = readdir(dir)) != NULL) {
+        // Skip hidden files and navigation links (. and ..)
+        if (entry->d_name[0] == '.') continue;
+
+        snprintf(src_path, sizeof(src_path), "%s/%s", sd_dir_path, entry->d_name);
+        snprintf(dst_path, sizeof(dst_path), "/spiffs/%s", entry->d_name);
+
+        sync_single_file(src_path, dst_path);
+    }
+
+    closedir(dir);
+    ESP_LOGI(TAG, "Audio folder synchronization finished.");
 }
 
 void appc_sync_assets(void){
-    appc_sync_bootup_sound();
+    appc_sync_audio_folder();
 }
 
 void appc_wifi_ui_timer_cb(lv_timer_t * timer) {
@@ -155,7 +175,11 @@ void appc_clock_timer_cb(lv_timer_t * timer) {
 }
 
 void appc_date_timer_cb(lv_timer_t * timer){
-    appc_update_date_ui();  
+    appc_update_date_ui(); 
+}
+
+static void alarm_timer_cb(lv_timer_t * timer) {
+    appc_alarm_process();
 }
 
 void appc_init(void) {
@@ -199,8 +223,7 @@ void appc_init(void) {
     lv_timer_create(appc_wifi_ui_timer_cb, 500, NULL);
     lv_timer_create(appc_clock_timer_cb, 1000, NULL);
     lv_timer_create(appc_date_timer_cb, 6*60*60*1000, NULL);
-
-    appc_task_get_date();
+    lv_timer_create(alarm_timer_cb, 500, NULL);
     
     //WiFi events
     lv_obj_add_event_cb(ui_WifiConnectButton, app_wifi_connect, LV_EVENT_CLICKED, NULL);
@@ -215,13 +238,14 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
+    //lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
 
-    lv_obj_add_event_cb(ui_CalPrev, appc_task_cal_prev, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(ui_CalNext, appc_task_cal_next, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_CalPrev, appc_task_cal_prev, LV_EVENT_PRESSED, NULL);
+    lv_obj_add_event_cb(ui_CalNext, appc_task_cal_next, LV_EVENT_PRESSED, NULL);
 
     appc_sketch_init();
     appc_alarm_init();
+    appc_tasks_init();
     
     //Play_Music("/sdcard/Audio", "SadaSiva.mp3");
 

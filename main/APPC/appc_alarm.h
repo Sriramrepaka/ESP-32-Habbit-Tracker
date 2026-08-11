@@ -23,6 +23,7 @@ typedef struct {
 void appc_alarm_init(void);
 // Evaluates active alarms against current system time
 void appc_alarm_check_time(int current_hour, int current_min, int current_sec);
+void appc_alarm_process(void);
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,9 @@ static appc_alarm_t s_alarms[MAX_ALARMS];
 static int s_alarm_count = 0;
 static int s_editing_index = -1; // -1 = Create New, >=0 = Edit Existing
 
+static bool s_alarm_active = false;
+static TickType_t s_alarm_start_tick = 0;
+
 // Light struct for NVS storage (strips out LVGL widget pointers)
 typedef struct {
     int hour;
@@ -91,6 +94,44 @@ static void load_alarms_from_nvs(void) {
         }
     }
     nvs_close(handle);
+}
+
+// 1. Trigger this when the alarm time hits
+void appc_start_alarm(void) {
+    s_alarm_active = true;
+    s_alarm_start_tick = xTaskGetTickCount();
+
+    // Show the alarm UI panel
+    if (s_ring_panel) {
+        lv_obj_clear_flag(s_ring_panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_move_foreground(s_ring_panel);
+        lv_refr_now(NULL);
+    }
+}
+
+// 2. Trigger this from your STOP button event callback
+void appc_stop_alarm(void) {
+    s_alarm_active = false;
+    Music_pause(); // Call your audio driver's stop function
+    
+    if (s_ring_panel) {
+        lv_obj_add_flag(s_ring_panel, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+void appc_alarm_process(void) {
+    if (!s_alarm_active) return;
+
+    // Timeout: Stop automatically after 3 minutes (180,000 ms)
+    if ((xTaskGetTickCount() - s_alarm_start_tick) >= pdMS_TO_TICKS(180000)) {
+        appc_stop_alarm();
+        return;
+    }
+
+    // Loop audio: If the track finished playing, start it again
+    if (audio_player_get_state() != AUDIO_PLAYER_STATE_PLAYING) { 
+        Play_Music("/spiffs", "alarm.mp3");
+    }
 }
 
 // --- LVGL Event Callbacks ---
@@ -193,17 +234,18 @@ static void appc_alarm_stop_btn_cb(lv_event_t * e) {
         lv_obj_add_flag(s_ring_panel, LV_OBJ_FLAG_HIDDEN); // Hide screen
     }
     // TODO: Silence hardware buzzer/audio PWM here
+    appc_stop_alarm();
     Music_pause();
 }
 
 static void create_alarm_ring_screen(void) {
     // 1. Overlay Panel (240x320, 20% Opacity)
-    s_ring_panel = lv_obj_create(lv_scr_act());
+    s_ring_panel = lv_obj_create(lv_layer_top());
     lv_obj_set_size(s_ring_panel, 240, 320);
     lv_obj_center(s_ring_panel);
     
     lv_obj_set_style_bg_color(s_ring_panel, lv_color_black(), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(s_ring_panel, LV_OPA_20, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(s_ring_panel, LV_OPA_60, LV_PART_MAIN);
     lv_obj_set_style_border_width(s_ring_panel, 0, LV_PART_MAIN);
     lv_obj_clear_flag(s_ring_panel, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -249,16 +291,9 @@ void appc_alarm_check_time(int current_hour, int current_min, int current_sec) {
         int alarm_hour = s_alarms[i].hour % 24;
 
         if (alarm_hour == current_hour && s_alarms[i].minute == current_min) {
-            ESP_LOGI(TAG, "🔔 ALARM TRIGGERED! Alarm #%d (%02d:%02d)", i, current_hour, current_min);
+            ESP_LOGI(TAG, "ALARM TRIGGERED! Alarm #%d (%02d:%02d)", i, current_hour, current_min);
 
-            // TODO: Add your hardware action or UI ring popup here:
-            // 1. Turn on PWM Buzzer / Audio DAC
-            // 2. Clear hidden flag on an active alarm modal (e.g. ui_AlarmRingPanel)
-            if (s_ring_panel) {
-                lv_obj_clear_flag(s_ring_panel, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_move_foreground(s_ring_panel);
-                Play_Music("/spiffs", "bootup.mp3");
-            }
+            appc_start_alarm();
         }
     }
 }
@@ -293,7 +328,7 @@ void appc_alarm_init(void) {
 
     // Bind base card UI created by SquareLine Studio
     if (ui_AlarmComp && s_alarm_count < MAX_ALARMS) {
-        s_alarms[0].hour = 0;
+        s_alarms[0].hour = 7;
         s_alarms[0].minute = 0;
         s_alarms[0].enabled = true;
         s_alarms[0].comp_obj = ui_AlarmComp;

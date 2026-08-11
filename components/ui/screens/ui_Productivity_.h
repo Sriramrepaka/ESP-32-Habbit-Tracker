@@ -13,6 +13,7 @@ extern "C" {
 // SCREEN: ui_Productivity_
 extern void ui_Productivity__screen_init(void);
 extern void ui_Productivity__screen_destroy(void);
+extern void ui_event_Productivity_(lv_event_t * e);
 extern lv_obj_t * ui_Productivity_;
 extern lv_obj_t * ui_Panel6;
 extern lv_obj_t * ui_CalMonth;

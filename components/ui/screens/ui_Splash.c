@@ -18,7 +18,7 @@ void ui_event_Splash(lv_event_t * e)
         upanim_Animation(ui_SLS_Logo, 100);
         upanim_Animation(ui_Demo1, 200);
         upanim_Animation(ui_Smart_Gadget1, 300);
-        _ui_screen_change(&ui_Clock, LV_SCR_LOAD_ANIM_FADE_ON, 200, 1400, &ui_Clock_screen_init);
+        _ui_screen_change(&ui_Clock, LV_SCR_LOAD_ANIM_FADE_ON, 500, 500, &ui_Clock_screen_init);
     }
 }
 

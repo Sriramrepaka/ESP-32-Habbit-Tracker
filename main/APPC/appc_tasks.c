@@ -64,11 +64,16 @@ void appc_task_get_date(void){
         cur_day_week = timeinfo.tm_wday;
         cur_month_days = get_days_in_month(cur_year,cur_month);
         cur_month_offset = get_month_start_offset(cur_year,cur_month);
+
+        ESP_LOGI(TAG,"Date updated succesfully for calender generation");
     }  
 }
 
 // 1. Function to build the 42 lightweight cells
 void appc_build_lightweight_calendar(lv_obj_t * parent, int start_offset, int total_days) {
+
+    ESP_LOGI(TAG,"Rendering calender at screen load");
+
     // Clear any previous cells if calling again
     lv_obj_clean(parent);
 
@@ -181,6 +186,7 @@ void appc_build_lightweight_calendar(lv_obj_t * parent, int start_offset, int to
 }
 
 void load_month_from_sd(int year, int month) {
+
     char filepath[32];
     snprintf(filepath, sizeof(filepath), "/sdcard/tasks/%04d_%02d.bin", year, month);
 
@@ -220,7 +226,8 @@ void productivity_screen_event_cb(lv_event_t * e) {
 
     if (code == LV_EVENT_SCREEN_LOADED) {
         // 1. Read history from SD Card for target month
-        load_month_from_sd(cur_year, cur_month); 
+        load_month_from_sd(cur_year, cur_month);
+        ESP_LOGI(TAG,"Loading month %d of year %d",cur_month,cur_year);
 
         // 2. Build the 42 lightweight cells
         appc_build_lightweight_calendar(ui_CalenderHolder, cur_month_offset, cur_month_days);
@@ -228,7 +235,7 @@ void productivity_screen_event_cb(lv_event_t * e) {
         // 3. Update ring visibilities based on loaded SD data
         for (int day = 1; day <= 31; day++) {
             day_task_status_t status = current_month_tasks[day - 1];
-            appc_set_day_tasks(ui_CalenderHolder, day, 3, status.task_one, status.task_two, status.task_three);
+            appc_set_day_tasks(ui_CalenderHolder, day, cur_month_offset, status.task_one, status.task_two, status.task_three);
         }
     } 
     else if (code == LV_EVENT_SCREEN_UNLOADED) {
@@ -271,6 +278,9 @@ void toggle_task_and_save(int year, int month, int day, int task_num) {
 
 // Centralized function to rebuild calendar UI for cur_year & cur_month
 void appc_render_calendar(void) {
+
+    ESP_LOGI(TAG,"Rendering calender...");
+
     if (!ui_CalenderHolder) return;
 
     // 1. Recalculate offset and total days for the target month
@@ -283,7 +293,7 @@ void appc_render_calendar(void) {
     // 3. Rebuild calendar cells and update Month/Year labels
     appc_build_lightweight_calendar(ui_CalenderHolder, cur_month_offset, cur_month_days);
 
-    // 4. Update ring visibilities using cur_month_offset (NOT hardcoded 3)
+    // 4. Update ring visibilities using cur_month_offset
     for (int day = 1; day <= cur_month_days; day++) {
         day_task_status_t status = current_month_tasks[day - 1];
         appc_set_day_tasks(ui_CalenderHolder, day, cur_month_offset, 
@@ -293,12 +303,18 @@ void appc_render_calendar(void) {
 
 // Previous Month Action
 void appc_task_cal_prev(lv_event_t * e) {
+
     cur_month--;
     if (cur_month < 1) {
         cur_month = 12;
         cur_year--;
     }
+
+    ESP_LOGI(TAG,"Rendering previous month %d",cur_month);
+
     appc_render_calendar();
+
+    ESP_LOGI(TAG,"Rendered previous month %d",cur_month);
 }
 
 // Next Month Action
@@ -308,7 +324,33 @@ void appc_task_cal_next(lv_event_t * e) {
         cur_month = 1;
         cur_year++;
     }
+
+    ESP_LOGI(TAG,"Rendering next month %d",cur_month);
+
     appc_render_calendar();
+
+    ESP_LOGI(TAG,"Rendered next month %d",cur_month);
 }
 
+void appc_tasks_init(void) {
+    // 1. Remove the knob (thumb indicator) style entirely
+    lv_obj_remove_style(ui_ArcTask1, NULL, LV_PART_KNOB);
+    lv_obj_remove_style(ui_ArcTask2, NULL, LV_PART_KNOB);
+    lv_obj_remove_style(ui_ArcTask3, NULL, LV_PART_KNOB);
+
+    // 2. Make the knob invisible as a failsafe against default theme drawing
+    lv_obj_set_style_opa(ui_ArcTask1, LV_OPA_TRANSP, LV_PART_KNOB);
+    lv_obj_set_style_opa(ui_ArcTask2, LV_OPA_TRANSP, LV_PART_KNOB);
+    lv_obj_set_style_opa(ui_ArcTask3, LV_OPA_TRANSP, LV_PART_KNOB);
+
+    // 3. Disable touch interaction so it acts purely as a display ring
+    lv_obj_clear_flag(ui_ArcTask1, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(ui_ArcTask2, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(ui_ArcTask3, LV_OBJ_FLAG_CLICKABLE);
+
+    // Optional: Start the progress from 12 o'clock (top) instead of 3 o'clock
+    lv_arc_set_rotation(ui_ArcTask1, 270);
+    lv_arc_set_rotation(ui_ArcTask2, 270);
+    lv_arc_set_rotation(ui_ArcTask3, 270);
+}
 

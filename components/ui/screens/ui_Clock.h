@@ -17,8 +17,12 @@ extern void ui_event_Clock(lv_event_t * e);
 extern lv_obj_t * ui_Clock;
 extern lv_obj_t * ui_Clock_Number;
 extern lv_obj_t * ui_Date;
-extern void ui_event_Panel2(lv_event_t * e);
-extern lv_obj_t * ui_Panel2;
+extern lv_obj_t * ui_ArcTask1;
+extern lv_obj_t * ui_Task1min;
+extern lv_obj_t * ui_ArcTask2;
+extern lv_obj_t * ui_Task2min;
+extern lv_obj_t * ui_ArcTask3;
+extern lv_obj_t * ui_Task3min;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

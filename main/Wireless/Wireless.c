@@ -6,6 +6,7 @@
 #include "arpa/inet.h"   // This usually handles inet_ntoa/inet_pton
 #include "ping/ping_sock.h"
 #include "esp_sntp.h"
+#include "appc_tasks.h"
 
 uint16_t BLE_NUM = 0;
 uint16_t WIFI_NUM = 0;
@@ -301,6 +302,8 @@ void time_sync_notification_cb(struct timeval *tv) {
     ESP_LOGI(TAG,"Time Updated");
     appc_update_date_ui();
     ESP_LOGI(TAG,"Date Updated");
+    appc_task_get_date();
+    appc_render_calendar();
 }
 
 void start_sntp(void) {
