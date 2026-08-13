@@ -140,6 +140,7 @@ void ui_Alarm_screen_init(void)
     lv_obj_set_y(ui_RollerMin, -79);
     lv_obj_set_align(ui_RollerMin, LV_ALIGN_CENTER);
     lv_obj_set_style_text_font(ui_RollerMin, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerMin, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RollerHour = lv_roller_create(ui_AlarmSetPanel);
     lv_roller_set_options(ui_RollerHour, "1", LV_ROLLER_MODE_NORMAL);
@@ -149,6 +150,7 @@ void ui_Alarm_screen_init(void)
     lv_obj_set_y(ui_RollerHour, -79);
     lv_obj_set_align(ui_RollerHour, LV_ALIGN_CENTER);
     lv_obj_set_style_text_font(ui_RollerHour, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerHour, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel4 = lv_obj_create(ui_AlarmSetPanel);
     lv_obj_set_width(ui_Panel4, 10);

@@ -25,6 +25,30 @@ extern void ui_event_settingsNotesPanel(lv_event_t * e);
 extern lv_obj_t * ui_settingsNotesPanel;
 extern lv_obj_t * ui_Label7;
 extern lv_obj_t * ui_Image4;
+extern void ui_event_settingsTasksPanel(lv_event_t * e);
+extern lv_obj_t * ui_settingsTasksPanel;
+extern lv_obj_t * ui_Label20;
+extern lv_obj_t * ui_TaskSelectPanel;
+extern lv_obj_t * ui_Dropdown1;
+extern void ui_event_TaskSelectBtn(lv_event_t * e);
+extern lv_obj_t * ui_TaskSelectBtn;
+extern lv_obj_t * ui_Label21;
+extern void ui_event_TaskSelectBackBtn(lv_event_t * e);
+extern lv_obj_t * ui_TaskSelectBackBtn;
+extern lv_obj_t * ui_Label24;
+extern lv_obj_t * ui_TaskTimeSet;
+extern lv_obj_t * ui_RollerTaskHr2;
+extern lv_obj_t * ui_RollerTaskMin2;
+extern lv_obj_t * ui_TaskHour2;
+extern lv_obj_t * ui_TaskMin2;
+extern lv_obj_t * ui_Panel18;
+extern lv_obj_t * ui_Panel13;
+extern void ui_event_TaskSetBtn2(lv_event_t * e);
+extern lv_obj_t * ui_TaskSetBtn2;
+extern lv_obj_t * ui_Label27;
+extern void ui_event_TaskBackBtn2(lv_event_t * e);
+extern lv_obj_t * ui_TaskBackBtn2;
+extern lv_obj_t * ui_Label25;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus
