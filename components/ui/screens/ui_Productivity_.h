@@ -33,6 +33,9 @@ extern lv_obj_t * ui_CalYear;
 extern void ui_event_WifiCloseButton2(lv_event_t * e);
 extern lv_obj_t * ui_WifiCloseButton2;
 extern lv_obj_t * ui_Label12;
+extern lv_obj_t * ui_DaysTask1;
+extern lv_obj_t * ui_DaysTask2;
+extern lv_obj_t * ui_DaysTask3;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

@@ -36,6 +36,7 @@ extern lv_obj_t * ui_Label21;
 extern void ui_event_TaskSelectBackBtn(lv_event_t * e);
 extern lv_obj_t * ui_TaskSelectBackBtn;
 extern lv_obj_t * ui_Label24;
+extern lv_obj_t * ui_Checkbox1;
 extern lv_obj_t * ui_TaskTimeSet;
 extern lv_obj_t * ui_RollerTaskHr2;
 extern lv_obj_t * ui_RollerTaskMin2;

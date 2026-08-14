@@ -22,6 +22,7 @@ lv_obj_t * ui_TaskSelectBtn = NULL;
 lv_obj_t * ui_Label21 = NULL;
 lv_obj_t * ui_TaskSelectBackBtn = NULL;
 lv_obj_t * ui_Label24 = NULL;
+lv_obj_t * ui_Checkbox1 = NULL;
 lv_obj_t * ui_TaskTimeSet = NULL;
 lv_obj_t * ui_RollerTaskHr2 = NULL;
 lv_obj_t * ui_RollerTaskMin2 = NULL;
@@ -304,6 +305,18 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_text_color(ui_Label24, lv_color_hex(0x5E5E5E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label24, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Checkbox1 = lv_checkbox_create(ui_TaskSelectPanel);
+    lv_checkbox_set_text(ui_Checkbox1, "  Pomodoro");
+    lv_obj_set_width(ui_Checkbox1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Checkbox1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Checkbox1, 0);
+    lv_obj_set_y(ui_Checkbox1, 8);
+    lv_obj_set_align(ui_Checkbox1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Checkbox1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_set_style_text_color(ui_Checkbox1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Checkbox1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Checkbox1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_TaskTimeSet = lv_obj_create(ui_Settings);
     lv_obj_set_width(ui_TaskTimeSet, 240);
     lv_obj_set_height(ui_TaskTimeSet, 320);
@@ -448,6 +461,7 @@ void ui_Settings_screen_destroy(void)
     ui_Label21 = NULL;
     ui_TaskSelectBackBtn = NULL;
     ui_Label24 = NULL;
+    ui_Checkbox1 = NULL;
     ui_TaskTimeSet = NULL;
     ui_RollerTaskHr2 = NULL;
     ui_RollerTaskMin2 = NULL;

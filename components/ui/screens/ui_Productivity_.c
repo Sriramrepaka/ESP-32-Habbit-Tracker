@@ -23,6 +23,9 @@ lv_obj_t * ui_Label23 = NULL;
 lv_obj_t * ui_CalYear = NULL;
 lv_obj_t * ui_WifiCloseButton2 = NULL;
 lv_obj_t * ui_Label12 = NULL;
+lv_obj_t * ui_DaysTask1 = NULL;
+lv_obj_t * ui_DaysTask2 = NULL;
+lv_obj_t * ui_DaysTask3 = NULL;
 // event funtions
 void ui_event_Productivity_(lv_event_t * e)
 {
@@ -234,6 +237,39 @@ void ui_Productivity__screen_init(void)
     lv_obj_set_style_text_opa(ui_Label12, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label12, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_DaysTask1 = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_DaysTask1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DaysTask1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_DaysTask1, -80);
+    lv_obj_set_y(ui_DaysTask1, 138);
+    lv_obj_set_align(ui_DaysTask1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DaysTask1, "• 0 Days");
+    lv_obj_set_style_text_color(ui_DaysTask1, lv_color_hex(0xFFFF00), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_DaysTask1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_DaysTask1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_DaysTask2 = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_DaysTask2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DaysTask2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_DaysTask2, -12);
+    lv_obj_set_y(ui_DaysTask2, 138);
+    lv_obj_set_align(ui_DaysTask2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DaysTask2, "• 0 Days");
+    lv_obj_set_style_text_color(ui_DaysTask2, lv_color_hex(0x2DCBD7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_DaysTask2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_DaysTask2, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_DaysTask3 = lv_label_create(ui_Productivity_);
+    lv_obj_set_width(ui_DaysTask3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DaysTask3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_DaysTask3, 51);
+    lv_obj_set_y(ui_DaysTask3, 138);
+    lv_obj_set_align(ui_DaysTask3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DaysTask3, "• 0 Days");
+    lv_obj_set_style_text_color(ui_DaysTask3, lv_color_hex(0xFA080E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_DaysTask3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_DaysTask3, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_WifiCloseButton2, ui_event_WifiCloseButton2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Productivity_, ui_event_Productivity_, LV_EVENT_ALL, NULL);
 
@@ -262,5 +298,8 @@ void ui_Productivity__screen_destroy(void)
     ui_CalYear = NULL;
     ui_WifiCloseButton2 = NULL;
     ui_Label12 = NULL;
+    ui_DaysTask1 = NULL;
+    ui_DaysTask2 = NULL;
+    ui_DaysTask3 = NULL;
 
 }
