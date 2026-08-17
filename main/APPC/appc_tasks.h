@@ -2,6 +2,7 @@
 #define APPC_TASKS_H 
 #include "ui.h"
 #include "esp_wifi.h"
+#include "PCM5101.h"
 
 typedef struct {
     uint8_t task_one   : 1; // Task 1 completed

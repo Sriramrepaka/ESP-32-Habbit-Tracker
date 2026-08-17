@@ -11,8 +11,29 @@
 #include "esp_task_wdt.h"
 #include <stdio.h>
 #include "appc_tasks.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 
 static const char *TAG = "APPC_TASK";
+
+typedef struct {
+    bool    is_pomodoro;  // true / false
+    uint8_t hour;         // 0 - 23
+    uint8_t minute;       // 0 - 59
+} habit_task_t;
+
+static habit_task_t g_tasks[3] = {
+    {false, 0, 30}, // Task 1 default: 30 mins
+    {false, 1, 0},  // Task 2 default: 1 hour
+    {true,  0, 25}  // Task 3 default: 25 mins (Pomodoro)
+};
+
+static uint8_t s_selected_task_index = 0;
+
+static uint32_t s_total_work_remaining_sec = 0; // Overall target work time
+static uint32_t s_current_interval_sec     = 0; // Countdown interval active on screen
+static bool     s_is_pomo_break             = false; // true = Break mode, false = Work mode
+static lv_timer_t * s_task_timer           = NULL;
 
 int cur_day;
 int cur_day_week;
@@ -67,6 +88,243 @@ void appc_task_get_date(void){
 
         ESP_LOGI(TAG,"Date updated succesfully for calender generation");
     }  
+}
+
+void appc_save_all_tasks(void) {
+    nvs_handle_t handle;
+    if (nvs_open("tracker_cfg", NVS_READWRITE, &handle) == ESP_OK) {
+        // Save the entire array of 3 tasks in one call
+        nvs_set_blob(handle, "tasks_data", g_tasks, sizeof(g_tasks));
+        nvs_commit(handle);
+        nvs_close(handle);
+    }
+    ESP_LOGI(TAG,"Tasks settings updated and saved");
+}
+
+void appc_load_all_tasks(void) {
+    nvs_handle_t handle;
+    if (nvs_open("tracker_cfg", NVS_READONLY, &handle) == ESP_OK) {
+        size_t required_size = sizeof(g_tasks);
+        nvs_get_blob(handle, "tasks_data", g_tasks, &required_size);
+        nvs_close(handle);
+    }
+}
+
+// Update UI controls to show values of the currently selected task index
+static void appc_sync_settings_ui(uint8_t task_idx) {
+    if (task_idx > 2) return;
+
+    if (g_tasks[task_idx].is_pomodoro) {
+        lv_obj_add_state(ui_PomodoroCheckbox, LV_STATE_CHECKED);
+    } else {
+        lv_obj_clear_state(ui_PomodoroCheckbox, LV_STATE_CHECKED);
+    }
+
+    lv_roller_set_selected(ui_RollerTaskHr, g_tasks[task_idx].hour, LV_ANIM_OFF);
+
+    static const uint8_t roller_values[] = {0, 10, 15, 30, 45};
+    size_t count = sizeof(roller_values) / sizeof(roller_values[0]);
+
+    for (size_t i = 0; i < count; i++) {
+        if (roller_values[i] == g_tasks[task_idx].minute) {
+            lv_roller_set_selected(ui_RollerTaskMin, (uint16_t)i, LV_ANIM_OFF);
+            return;
+        }
+    }
+}
+
+// Event 1: Triggered when user selects a different task in the Dropdown
+void ui_TaskDropdown_event_cb(lv_event_t * e) {
+    uint8_t selected_idx = (uint8_t)lv_dropdown_get_selected(ui_TaskDropdown);
+    appc_sync_settings_ui(selected_idx);
+}
+
+// Event 2: Triggered when user clicks the final SET button
+void ui_SetButton_event_cb(lv_event_t * e) {
+    uint8_t selected_idx = (uint8_t)lv_dropdown_get_selected(ui_TaskDropdown);
+
+    // Write widget values into the array element for this specific task
+    g_tasks[selected_idx].is_pomodoro = lv_obj_has_state(ui_PomodoroCheckbox, LV_STATE_CHECKED);
+    g_tasks[selected_idx].hour        = (uint8_t)lv_roller_get_selected(ui_RollerTaskHr);
+
+    char buf[8];
+
+    // Copy selected string (e.g., "15") into buf
+    lv_roller_get_selected_str(ui_RollerTaskMin, buf, sizeof(buf));
+
+    // Convert string to integer (e.g., 15)
+    uint8_t actual_val = (uint8_t)atoi(buf);
+    g_tasks[selected_idx].minute      = actual_val;
+
+    // Persist all 3 tasks to Flash memory
+    appc_save_all_tasks();
+
+    // Hide panels
+    lv_obj_add_flag(ui_TaskTimeSet, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_TaskSelectPanel, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void task_label_long_press_cb(lv_event_t * e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * label = lv_event_get_target(e);
+
+    if (code == LV_EVENT_LONG_PRESSED) {
+        // Retrieve the task index stored on this object
+        s_selected_task_index = (uint8_t)(uintptr_t)lv_obj_get_user_data(label);
+
+        // Pre-fill the initial time labels on TaskOnGoingPanel before starting
+        habit_task_t * task = &g_tasks[s_selected_task_index];
+        
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%02d", task->hour);
+        lv_label_set_text(ui_TaskTimeHourLabel, buf);
+
+        snprintf(buf, sizeof(buf), "%02d", task->minute);
+        lv_label_set_text(ui_TaskTimeMinLabel, buf);
+
+        lv_label_set_text(ui_TaskTimeSecLabel, "00");
+
+        // Unhide the panel
+        lv_obj_clear_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_move_foreground(ui_TaskOnGoingPanel);
+    }
+}
+
+
+void appc_setup_clock_task_labels(void) {
+    // Label 1 setup
+    lv_obj_add_flag(ui_Task1min, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_user_data(ui_Task1min, (void*)(uintptr_t)0);
+    lv_obj_add_event_cb(ui_Task1min, task_label_long_press_cb, LV_EVENT_LONG_PRESSED, NULL);
+
+    // Label 2 setup
+    lv_obj_add_flag(ui_Task2min, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_user_data(ui_Task2min, (void*)(uintptr_t)1);
+    lv_obj_add_event_cb(ui_Task2min, task_label_long_press_cb, LV_EVENT_LONG_PRESSED, NULL);
+
+    // Label 3 setup
+    lv_obj_add_flag(ui_Task3min, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_user_data(ui_Task3min, (void*)(uintptr_t)2);
+    lv_obj_add_event_cb(ui_Task3min, task_label_long_press_cb, LV_EVENT_LONG_PRESSED, NULL);
+}
+
+
+static void update_time_labels(uint32_t total_sec) {
+    uint8_t h = total_sec / 3600;
+    uint8_t m = (total_sec % 3600) / 60;
+    uint8_t s = total_sec % 60;
+
+    char buf[8];
+    snprintf(buf, sizeof(buf), "%02d", h);
+    lv_label_set_text(ui_TaskTimeHourLabel, buf);
+
+    snprintf(buf, sizeof(buf), "%02d", m);
+    lv_label_set_text(ui_TaskTimeMinLabel, buf);
+
+    snprintf(buf, sizeof(buf), "%02d", s);
+    lv_label_set_text(ui_TaskTimeSecLabel, buf);
+}
+
+static void finish_task_timer(void) {
+    if (s_task_timer != NULL) {
+        lv_timer_del(s_task_timer);
+        s_task_timer = NULL;
+    }
+    // Hide the ongoing task panel
+    lv_obj_add_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void task_timer_cb(lv_timer_t * timer) {
+    if (s_current_interval_sec > 0) {
+        s_current_interval_sec--;
+
+        // Only decrement the total work budget during active work sessions
+        if (!s_is_pomo_break && s_total_work_remaining_sec > 0) {
+            s_total_work_remaining_sec--;
+        }
+
+        update_time_labels(s_current_interval_sec);
+    } else {
+
+        Play_Music("/spiffs", "timer.mp3");
+
+        // Current interval (work or break) reached 00:00:00
+        habit_task_t * task = &g_tasks[s_selected_task_index];
+
+        if (task->is_pomodoro) {
+            if (!s_is_pomo_break) {
+                // Just finished a WORK block
+                if (s_total_work_remaining_sec > 0) {
+                    // Work time still remains -> Start a 5-minute BREAK
+                    s_is_pomo_break = true;
+                    s_current_interval_sec = 5 * 60; // 5-minute break
+
+                    lv_label_set_text(ui_TaskOnGoingLabel, "Pause");
+                    update_time_labels(s_current_interval_sec);
+                } else {
+                    // Work budget exhausted -> Complete task!
+                    finish_task_timer();
+                }
+            } else {
+                // Just finished a BREAK block -> Switch back to WORK
+                s_is_pomo_break = false;
+
+                // Grab next work chunk: 25 mins or whatever work time remains
+                uint32_t next_work_sec = (s_total_work_remaining_sec > (25 * 60)) 
+                                         ? (25 * 60) 
+                                         : s_total_work_remaining_sec;
+
+                if (next_work_sec > 0) {
+                    s_current_interval_sec = next_work_sec;
+
+                    lv_label_set_text(ui_TaskOnGoingLabel, "Hustle");
+
+                    update_time_labels(s_current_interval_sec);
+                } else {
+                    finish_task_timer();
+                }
+            }
+            update_time_labels(s_current_interval_sec);
+        } else {
+            // Standard non-pomodoro timer completed
+            finish_task_timer();
+        }
+    }
+}
+
+// Event when TaskOnGoingBtn is clicked to launch the task
+void ui_TaskOnGoingBtn_event_cb(lv_event_t * e) {
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+        habit_task_t * task = &g_tasks[s_selected_task_index];
+
+        // 1. Store total target work duration (e.g. 1 hour = 3600 seconds)
+        s_total_work_remaining_sec = (task->hour * 3600) + (task->minute * 60);
+        s_is_pomo_break = false;
+
+        if (s_total_work_remaining_sec == 0) return;
+
+        lv_label_set_text(ui_TaskOnGoingLabel, "Hustle");
+
+        if (task->is_pomodoro) {
+            // First work chunk is 25 mins (or less if target < 25 mins)
+            s_current_interval_sec = (s_total_work_remaining_sec > (25 * 60)) 
+                                     ? (25 * 60) 
+                                     : s_total_work_remaining_sec;
+        } else {
+            // Standard timer counts down the full time directly
+            s_current_interval_sec = s_total_work_remaining_sec;
+        }
+
+        update_time_labels(s_current_interval_sec);
+
+        // Delete active timer if one is running
+        if (s_task_timer != NULL) {
+            lv_timer_del(s_task_timer);
+        }
+
+        // Create new 1-second interval timer
+        s_task_timer = lv_timer_create(task_timer_cb, 1000, NULL);
+    }
 }
 
 // 1. Function to build the 42 lightweight cells
@@ -352,5 +610,21 @@ void appc_tasks_init(void) {
     lv_arc_set_rotation(ui_ArcTask1, 270);
     lv_arc_set_rotation(ui_ArcTask2, 270);
     lv_arc_set_rotation(ui_ArcTask3, 270);
+
+    appc_load_all_tasks();
+
+    appc_setup_clock_task_labels();
+
+    if (ui_TaskDropdown) {
+        lv_obj_add_event_cb(ui_TaskDropdown, ui_TaskDropdown_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+
+    if (ui_TaskSetBtn2) {
+        lv_obj_add_event_cb(ui_TaskSetBtn2, ui_SetButton_event_cb, LV_EVENT_CLICKED, NULL);
+    }
+
+    if(ui_TaskOnGoingBtn) {
+        lv_obj_add_event_cb(ui_TaskOnGoingBtn, ui_TaskOnGoingBtn_event_cb, LV_EVENT_CLICKED, NULL);
+    }
 }
 

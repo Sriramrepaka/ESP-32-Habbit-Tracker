@@ -54,7 +54,7 @@ void ui_event_Task1min(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_PRESSED) {
+    if(event_code == LV_EVENT_LONG_PRESSED) {
         _ui_flag_modify(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
@@ -63,7 +63,7 @@ void ui_event_Task2min(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_PRESSED) {
+    if(event_code == LV_EVENT_LONG_PRESSED) {
         _ui_flag_modify(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
@@ -72,7 +72,7 @@ void ui_event_Task3min(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_PRESSED) {
+    if(event_code == LV_EVENT_LONG_PRESSED) {
         _ui_flag_modify(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
