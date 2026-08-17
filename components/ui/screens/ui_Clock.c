@@ -31,6 +31,8 @@ lv_obj_t * ui_TaskTimeSecLabel = NULL;
 lv_obj_t * ui_TaskOnGoingLabel = NULL;
 lv_obj_t * ui_TaskOnGoingBtn = NULL;
 lv_obj_t * ui_TaskTimePlayPause = NULL;
+lv_obj_t * ui_TaskOnGoingbackBtn = NULL;
+lv_obj_t * ui_Label28 = NULL;
 // event funtions
 void ui_event_Clock(lv_event_t * e)
 {
@@ -74,6 +76,15 @@ void ui_event_Task3min(lv_event_t * e)
 
     if(event_code == LV_EVENT_LONG_PRESSED) {
         _ui_flag_modify(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
+}
+
+void ui_event_TaskOnGoingbackBtn(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 
@@ -338,7 +349,7 @@ void ui_Clock_screen_init(void)
     lv_obj_set_width(ui_TaskOnGoingBtn, 100);
     lv_obj_set_height(ui_TaskOnGoingBtn, 50);
     lv_obj_set_x(ui_TaskOnGoingBtn, 0);
-    lv_obj_set_y(ui_TaskOnGoingBtn, 100);
+    lv_obj_set_y(ui_TaskOnGoingBtn, 75);
     lv_obj_set_align(ui_TaskOnGoingBtn, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_TaskOnGoingBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_TaskOnGoingBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -352,9 +363,32 @@ void ui_Clock_screen_init(void)
     lv_label_set_text(ui_TaskTimePlayPause, "Start");
     lv_obj_set_style_text_font(ui_TaskTimePlayPause, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_TaskOnGoingbackBtn = lv_btn_create(ui_TaskOnGoingPanel);
+    lv_obj_set_width(ui_TaskOnGoingbackBtn, 60);
+    lv_obj_set_height(ui_TaskOnGoingbackBtn, 30);
+    lv_obj_set_x(ui_TaskOnGoingbackBtn, 0);
+    lv_obj_set_y(ui_TaskOnGoingbackBtn, 128);
+    lv_obj_set_align(ui_TaskOnGoingbackBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_TaskOnGoingbackBtn, lv_color_hex(0x414141), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TaskOnGoingbackBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_TaskOnGoingbackBtn, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_TaskOnGoingbackBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_TaskOnGoingbackBtn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label28 = lv_label_create(ui_TaskOnGoingbackBtn);
+    lv_obj_set_width(ui_Label28, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label28, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Label28, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label28, "Back");
+    lv_obj_set_style_text_color(ui_Label28, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label28, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_Task1min, ui_event_Task1min, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Task2min, ui_event_Task2min, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Task3min, ui_event_Task3min, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_TaskOnGoingbackBtn, ui_event_TaskOnGoingbackBtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Clock, ui_event_Clock, LV_EVENT_ALL, NULL);
 
 }
@@ -390,5 +424,7 @@ void ui_Clock_screen_destroy(void)
     ui_TaskOnGoingLabel = NULL;
     ui_TaskOnGoingBtn = NULL;
     ui_TaskTimePlayPause = NULL;
+    ui_TaskOnGoingbackBtn = NULL;
+    ui_Label28 = NULL;
 
 }

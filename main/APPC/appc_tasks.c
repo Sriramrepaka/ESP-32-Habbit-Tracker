@@ -232,6 +232,7 @@ static void finish_task_timer(void) {
     }
     // Hide the ongoing task panel
     lv_obj_add_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_HIDDEN);
 }
 
 static void task_timer_cb(lv_timer_t * timer) {
@@ -295,6 +296,8 @@ static void task_timer_cb(lv_timer_t * timer) {
 // Event when TaskOnGoingBtn is clicked to launch the task
 void ui_TaskOnGoingBtn_event_cb(lv_event_t * e) {
     if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+        // Hide the button
+        lv_obj_add_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_HIDDEN);
         habit_task_t * task = &g_tasks[s_selected_task_index];
 
         // 1. Store total target work duration (e.g. 1 hour = 3600 seconds)

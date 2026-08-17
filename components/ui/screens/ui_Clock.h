@@ -43,6 +43,9 @@ extern lv_obj_t * ui_TaskTimeSecLabel;
 extern lv_obj_t * ui_TaskOnGoingLabel;
 extern lv_obj_t * ui_TaskOnGoingBtn;
 extern lv_obj_t * ui_TaskTimePlayPause;
+extern void ui_event_TaskOnGoingbackBtn(lv_event_t * e);
+extern lv_obj_t * ui_TaskOnGoingbackBtn;
+extern lv_obj_t * ui_Label28;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus
