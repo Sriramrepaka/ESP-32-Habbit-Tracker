@@ -20,12 +20,27 @@ typedef struct {
     bool    is_pomodoro;  // true / false
     uint8_t hour;         // 0 - 23
     uint8_t minute;       // 0 - 59
+    uint32_t remaining_sec; // 0 = not paused / fresh start
+    bool     is_paused;      // true if task was stopped mid-way
 } habit_task_t;
 
 static habit_task_t g_tasks[3] = {
-    {false, 0, 30}, // Task 1 default: 30 mins
-    {false, 1, 0},  // Task 2 default: 1 hour
-    {true,  0, 25}  // Task 3 default: 25 mins (Pomodoro)
+    {false, 0, 30, 0, false}, // Task 1 default: 30 mins
+    {false, 1, 0, 0, false},  // Task 2 default: 1 hour
+    {true,  0, 25, 0, false}  // Task 3 default: 25 mins (Pomodoro)
+};
+
+typedef struct {
+    uint32_t accumulated_sec; // Seconds spent today on this task
+} task_daily_stats_t;
+
+static task_daily_stats_t g_daily_stats[3] = {0};
+static int s_last_recorded_day = -1; // Tracks current day (1-31) to detect midnight rollover
+
+static lv_obj_t ** const g_task_min_labels[3] = {
+    &ui_Task1min,
+    &ui_Task2min,
+    &ui_Task3min
 };
 
 static uint8_t s_selected_task_index = 0;
@@ -43,6 +58,8 @@ int cur_month_days;
 int cur_month_offset;
 
 static day_task_status_t current_month_tasks[31];
+
+static void update_time_labels(uint32_t total_sec);
 
 // 1. Check for leap year
 bool is_leap_year(int year) {
@@ -88,6 +105,16 @@ void appc_task_get_date(void){
 
         ESP_LOGI(TAG,"Date updated succesfully for calender generation");
     }  
+}
+
+void appc_save_daily_stats(void) {
+    nvs_handle_t handle;
+    if (nvs_open("tracker_cfg", NVS_READWRITE, &handle) == ESP_OK) {
+        nvs_set_i32(handle, "last_day", (int32_t)s_last_recorded_day);
+        nvs_set_blob(handle, "daily_stats", g_daily_stats, sizeof(g_daily_stats));
+        nvs_commit(handle);
+        nvs_close(handle);
+    }
 }
 
 void appc_save_all_tasks(void) {
@@ -164,32 +191,85 @@ void ui_SetButton_event_cb(lv_event_t * e) {
     lv_obj_add_flag(ui_TaskSelectPanel, LV_OBJ_FLAG_HIDDEN);
 }
 
-static void task_label_long_press_cb(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * label = lv_event_get_target(e);
+static void update_task_accumulated_label(uint8_t task_idx) {
+    if (task_idx > 2 || *g_task_min_labels[task_idx] == NULL) return;
 
-    if (code == LV_EVENT_LONG_PRESSED) {
-        // Retrieve the task index stored on this object
+    uint32_t total_sec = g_daily_stats[task_idx].accumulated_sec;
+    uint32_t total_min = total_sec / 60;
+
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%lum", (unsigned long)total_min);
+    lv_label_set_text(*g_task_min_labels[task_idx], buf);
+}
+
+static void check_daily_reset(void) {
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // If day changed (or on first run)
+    if (s_last_recorded_day != timeinfo.tm_mday) {
+        s_last_recorded_day = timeinfo.tm_mday;
+
+        // Reset accumulated stats for all 3 tasks
+        for (int i = 0; i < 3; i++) {
+            g_daily_stats[i].accumulated_sec = 0;
+            update_task_accumulated_label(i);
+        }
+    }
+}
+
+static void task_label_long_press_cb(lv_event_t * e) {
+    if (lv_event_get_code(e) == LV_EVENT_LONG_PRESSED) {
+        lv_obj_t * label = lv_event_get_target(e);
         s_selected_task_index = (uint8_t)(uintptr_t)lv_obj_get_user_data(label);
 
-        // Pre-fill the initial time labels on TaskOnGoingPanel before starting
         habit_task_t * task = &g_tasks[s_selected_task_index];
-        
-        char buf[8];
-        snprintf(buf, sizeof(buf), "%02d", task->hour);
-        lv_label_set_text(ui_TaskTimeHourLabel, buf);
 
-        snprintf(buf, sizeof(buf), "%02d", task->minute);
-        lv_label_set_text(ui_TaskTimeMinLabel, buf);
+        // Ensure button starts showing "Back" before timer is launched
+        lv_label_set_text(ui_Label28, "Back");
 
-        lv_label_set_text(ui_TaskTimeSecLabel, "00");
+        uint32_t display_sec = 0;
+        if (task->is_paused && task->remaining_sec > 0) {
+            display_sec = task->remaining_sec;
+        } else {
+            display_sec = (task->hour * 3600) + (task->minute * 60);
+        }
 
-        // Unhide the panel
+        update_time_labels(display_sec);
+
         lv_obj_clear_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_move_foreground(ui_TaskOnGoingPanel);
     }
 }
 
+void ui_TaskOnGoingbackBtn_event_cb(lv_event_t * e) {
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+        habit_task_t * task = &g_tasks[s_selected_task_index];
+
+        // If a timer is currently active
+        if (s_task_timer != NULL) {
+            lv_timer_del(s_task_timer);
+            s_task_timer = NULL;
+
+            // Save remaining progress if work was incomplete
+            if (s_total_work_remaining_sec > 0) {
+                task->remaining_sec = s_total_work_remaining_sec;
+                task->is_paused = true;
+            } else {
+                task->remaining_sec = 0;
+                task->is_paused = false;
+            }
+        }
+
+        // Reset button label for next view
+        lv_label_set_text(ui_Label28, "Back");
+
+        // Hide the ongoing task panel
+        lv_obj_add_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
+    }
+}
 
 void appc_setup_clock_task_labels(void) {
     // Label 1 setup
@@ -230,9 +310,19 @@ static void finish_task_timer(void) {
         lv_timer_del(s_task_timer);
         s_task_timer = NULL;
     }
+
+    // Task finished completely: reset paused time state
+    habit_task_t * task = &g_tasks[s_selected_task_index];
+    task->remaining_sec = 0;
+    task->is_paused = false;
+
+    lv_label_set_text(ui_Label28, "Back");
+
+    int task_num = s_selected_task_index + 1;
+    toggle_task_and_save(cur_year, cur_month, cur_day, task_num);
+
     // Hide the ongoing task panel
     lv_obj_add_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_HIDDEN);
 }
 
 static void task_timer_cb(lv_timer_t * timer) {
@@ -242,6 +332,9 @@ static void task_timer_cb(lv_timer_t * timer) {
         // Only decrement the total work budget during active work sessions
         if (!s_is_pomo_break && s_total_work_remaining_sec > 0) {
             s_total_work_remaining_sec--;
+
+            g_daily_stats[s_selected_task_index].accumulated_sec++;
+            update_task_accumulated_label(s_selected_task_index);
         }
 
         update_time_labels(s_current_interval_sec);
@@ -279,7 +372,6 @@ static void task_timer_cb(lv_timer_t * timer) {
                     s_current_interval_sec = next_work_sec;
 
                     lv_label_set_text(ui_TaskOnGoingLabel, "Hustle");
-
                     update_time_labels(s_current_interval_sec);
                 } else {
                     finish_task_timer();
@@ -296,36 +388,40 @@ static void task_timer_cb(lv_timer_t * timer) {
 // Event when TaskOnGoingBtn is clicked to launch the task
 void ui_TaskOnGoingBtn_event_cb(lv_event_t * e) {
     if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
-        // Hide the button
-        lv_obj_add_flag(ui_TaskOnGoingbackBtn, LV_OBJ_FLAG_HIDDEN);
         habit_task_t * task = &g_tasks[s_selected_task_index];
 
-        // 1. Store total target work duration (e.g. 1 hour = 3600 seconds)
-        s_total_work_remaining_sec = (task->hour * 3600) + (task->minute * 60);
-        s_is_pomo_break = false;
+        // 1. Change the back button label from "Back" to "Break"
+        lv_label_set_text(ui_Label28, "Break");
 
+        // 2. Determine initial work time (Resume vs Fresh Start)
+        if (task->is_paused && task->remaining_sec > 0) {
+            // Resume from where the user left off
+            s_total_work_remaining_sec = task->remaining_sec;
+            task->is_paused = false; // Reset paused state
+        } else {
+            // Fresh start using configured time
+            s_total_work_remaining_sec = (task->hour * 3600) + (task->minute * 60);
+        }
+
+        s_is_pomo_break = false;
         if (s_total_work_remaining_sec == 0) return;
 
         lv_label_set_text(ui_TaskOnGoingLabel, "Hustle");
 
         if (task->is_pomodoro) {
-            // First work chunk is 25 mins (or less if target < 25 mins)
             s_current_interval_sec = (s_total_work_remaining_sec > (25 * 60)) 
                                      ? (25 * 60) 
                                      : s_total_work_remaining_sec;
         } else {
-            // Standard timer counts down the full time directly
             s_current_interval_sec = s_total_work_remaining_sec;
         }
 
         update_time_labels(s_current_interval_sec);
 
-        // Delete active timer if one is running
         if (s_task_timer != NULL) {
             lv_timer_del(s_task_timer);
         }
 
-        // Create new 1-second interval timer
         s_task_timer = lv_timer_create(task_timer_cb, 1000, NULL);
     }
 }
@@ -531,6 +627,7 @@ void toggle_task_and_save(int year, int month, int day, int task_num) {
         fwrite(current_month_tasks, sizeof(day_task_status_t), 31, f);
         fclose(f);
         ESP_LOGI(TAG,"Successfully saved task.....");
+        appc_render_calendar();
     }
     else{
         ESP_LOGI(TAG,"Failed to save task.....");
@@ -628,6 +725,10 @@ void appc_tasks_init(void) {
 
     if(ui_TaskOnGoingBtn) {
         lv_obj_add_event_cb(ui_TaskOnGoingBtn, ui_TaskOnGoingBtn_event_cb, LV_EVENT_CLICKED, NULL);
+    }
+
+    if(ui_TaskOnGoingbackBtn) {
+        lv_obj_add_event_cb(ui_TaskOnGoingbackBtn, ui_TaskOnGoingbackBtn_event_cb, LV_EVENT_CLICKED, NULL);
     }
 }
 
