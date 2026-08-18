@@ -43,6 +43,12 @@ static lv_obj_t ** const g_task_min_labels[3] = {
     &ui_Task3min
 };
 
+static lv_obj_t ** const g_task_arcs[3] = {
+    &ui_ArcTask1,
+    &ui_ArcTask2,
+    &ui_ArcTask3
+};
+
 static uint8_t s_selected_task_index = 0;
 
 static uint32_t s_total_work_remaining_sec = 0; // Overall target work time
@@ -60,6 +66,8 @@ int cur_month_offset;
 static day_task_status_t current_month_tasks[31];
 
 static void update_time_labels(uint32_t total_sec);
+static void update_task_accumulated_label(uint8_t task_idx);
+void appc_init_daily_stats(void);
 
 // 1. Check for leap year
 bool is_leap_year(int year) {
@@ -103,6 +111,8 @@ void appc_task_get_date(void){
         cur_month_days = get_days_in_month(cur_year,cur_month);
         cur_month_offset = get_month_start_offset(cur_year,cur_month);
 
+        appc_init_daily_stats();
+
         ESP_LOGI(TAG,"Date updated succesfully for calender generation");
     }  
 }
@@ -114,6 +124,41 @@ void appc_save_daily_stats(void) {
         nvs_set_blob(handle, "daily_stats", g_daily_stats, sizeof(g_daily_stats));
         nvs_commit(handle);
         nvs_close(handle);
+    }
+}
+
+void appc_init_daily_stats(void) {
+    
+    int current_day = cur_day;
+
+    nvs_handle_t handle;
+    int32_t saved_day = -1;
+    bool data_loaded = false;
+
+    if (nvs_open("tracker_cfg", NVS_READWRITE, &handle) == ESP_OK) {
+        size_t size = sizeof(g_daily_stats);
+        if (nvs_get_i32(handle, "last_day", &saved_day) == ESP_OK &&
+            nvs_get_blob(handle, "daily_stats", g_daily_stats, &size) == ESP_OK) {
+            data_loaded = true;
+        }
+        nvs_close(handle);
+    }
+
+    // Check if midnight passed while powered off or if no data exists
+    if (!data_loaded || saved_day != current_day) {
+        for (int i = 0; i < 3; i++) {
+            g_daily_stats[i].accumulated_sec = 0;
+        }
+        s_last_recorded_day = current_day;
+        appc_save_daily_stats(); // Persist new day setup
+    } else {
+        // Same day reboot: keep loaded seconds and match day cache
+        s_last_recorded_day = (int)saved_day;
+    }
+
+    // Update UI labels with correct time
+    for (uint8_t i = 0; i < 3; i++) {
+        update_task_accumulated_label(i);
     }
 }
 
@@ -131,8 +176,20 @@ void appc_save_all_tasks(void) {
 void appc_load_all_tasks(void) {
     nvs_handle_t handle;
     if (nvs_open("tracker_cfg", NVS_READONLY, &handle) == ESP_OK) {
-        size_t required_size = sizeof(g_tasks);
-        nvs_get_blob(handle, "tasks_data", g_tasks, &required_size);
+        size_t required_size = 0;
+        
+        // 1. Ask NVS exactly how big the saved blob is first (by passing NULL)
+        esp_err_t err = nvs_get_blob(handle, "tasks_data", NULL, &required_size);
+        
+        // 2. Only load the data if it exists AND the size perfectly matches our current struct
+        if (err == ESP_OK && required_size == sizeof(g_tasks)) {
+            nvs_get_blob(handle, "tasks_data", g_tasks, &required_size);
+            ESP_LOGI(TAG, "Tasks successfully loaded from NVS");
+        } else {
+            // If sizes don't match, we ignore the NVS data. 
+            // g_tasks will simply retain the default values defined at the top of your file.
+            ESP_LOGW(TAG, "Task data size mismatch or not found. Falling back to defaults.");
+        }
         nvs_close(handle);
     }
 }
@@ -183,12 +240,18 @@ void ui_SetButton_event_cb(lv_event_t * e) {
     uint8_t actual_val = (uint8_t)atoi(buf);
     g_tasks[selected_idx].minute      = actual_val;
 
+    g_tasks[selected_idx].remaining_sec = 0;
+    g_tasks[selected_idx].is_paused = false;
+
     // Persist all 3 tasks to Flash memory
     appc_save_all_tasks();
+
+    update_task_accumulated_label(selected_idx);
 
     // Hide panels
     lv_obj_add_flag(ui_TaskTimeSet, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_TaskSelectPanel, LV_OBJ_FLAG_HIDDEN);
+    ESP_LOGI(TAG,"Task %d, Pomodoro %d, Hour %d, Minute %d, Paused %d, Rem Sec %lu",selected_idx,g_tasks[selected_idx].is_pomodoro,g_tasks[selected_idx].hour,g_tasks[selected_idx].minute,g_tasks[selected_idx].is_paused,g_tasks[selected_idx].remaining_sec);
 }
 
 static void update_task_accumulated_label(uint8_t task_idx) {
@@ -197,9 +260,30 @@ static void update_task_accumulated_label(uint8_t task_idx) {
     uint32_t total_sec = g_daily_stats[task_idx].accumulated_sec;
     uint32_t total_min = total_sec / 60;
 
+    // 1. Update the text label
     char buf[16];
-    snprintf(buf, sizeof(buf), "%lum", (unsigned long)total_min);
+    snprintf(buf, sizeof(buf), "%lu", (unsigned long)total_min);
     lv_label_set_text(*g_task_min_labels[task_idx], buf);
+
+    // --- 2. NEW: Update the Arc Progress ---
+    if (*g_task_arcs[task_idx] != NULL) {
+        // Calculate the total target time in seconds
+        uint32_t target_sec = (g_tasks[task_idx].hour * 3600) + (g_tasks[task_idx].minute * 60);
+        
+        int percentage = 0;
+        if (target_sec > 0) {
+            // Multiply by 100 first to avoid losing decimals in integer division
+            percentage = (total_sec * 100) / target_sec;
+            
+            // Cap the arc at 100% in case they work "overtime" past the goal
+            if (percentage > 100) {
+                percentage = 100;
+            }
+        }
+        
+        // Set the arc fill value (assuming default 0-100 range)
+        lv_arc_set_value(*g_task_arcs[task_idx], percentage);
+    }
 }
 
 static void check_daily_reset(void) {
@@ -208,15 +292,15 @@ static void check_daily_reset(void) {
     time(&now);
     localtime_r(&now, &timeinfo);
 
-    // If day changed (or on first run)
-    if (s_last_recorded_day != timeinfo.tm_mday) {
-        s_last_recorded_day = timeinfo.tm_mday;
+    // Day boundary crossed while running continuously
+    if (s_last_recorded_day != -1 && s_last_recorded_day != cur_day) {
+        s_last_recorded_day = cur_day;
 
-        // Reset accumulated stats for all 3 tasks
         for (int i = 0; i < 3; i++) {
             g_daily_stats[i].accumulated_sec = 0;
             update_task_accumulated_label(i);
         }
+        appc_save_daily_stats();
     }
 }
 
@@ -241,6 +325,8 @@ static void task_label_long_press_cb(lv_event_t * e) {
 
         lv_obj_clear_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_move_foreground(ui_TaskOnGoingPanel);
+
+        ESP_LOGI(TAG,"Task %d, Hour %d, Minute %d, Paused %d,remaining sec %lu",s_selected_task_index,task->hour,task->minute, task->is_paused, task->remaining_sec);
     }
 }
 
@@ -261,6 +347,10 @@ void ui_TaskOnGoingbackBtn_event_cb(lv_event_t * e) {
                 task->remaining_sec = 0;
                 task->is_paused = false;
             }
+
+            // --- SAVE PROGRESS TO FLASH ---
+            appc_save_daily_stats();
+            appc_save_all_tasks();
         }
 
         // Reset button label for next view
@@ -316,6 +406,9 @@ static void finish_task_timer(void) {
     task->remaining_sec = 0;
     task->is_paused = false;
 
+    // --- SAVE PROGRESS TO FLASH ---
+    appc_save_daily_stats();
+
     lv_label_set_text(ui_Label28, "Back");
 
     int task_num = s_selected_task_index + 1;
@@ -326,6 +419,9 @@ static void finish_task_timer(void) {
 }
 
 static void task_timer_cb(lv_timer_t * timer) {
+    
+    check_daily_reset();
+    
     if (s_current_interval_sec > 0) {
         s_current_interval_sec--;
 
@@ -710,6 +806,11 @@ void appc_tasks_init(void) {
     lv_arc_set_rotation(ui_ArcTask1, 270);
     lv_arc_set_rotation(ui_ArcTask2, 270);
     lv_arc_set_rotation(ui_ArcTask3, 270);
+
+    // Set arc progress ranges from 0% to 100%
+    lv_arc_set_range(ui_ArcTask1, 0, 100);
+    lv_arc_set_range(ui_ArcTask2, 0, 100);
+    lv_arc_set_range(ui_ArcTask3, 0, 100);
 
     appc_load_all_tasks();
 
