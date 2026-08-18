@@ -413,6 +413,7 @@ static void finish_task_timer(void) {
 
     int task_num = s_selected_task_index + 1;
     toggle_task_and_save(cur_year, cur_month, cur_day, task_num);
+    appc_render_calendar();
 
     // Hide the ongoing task panel
     lv_obj_add_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
@@ -817,8 +818,6 @@ void appc_tasks_init(void) {
     appc_load_all_tasks();
 
     appc_setup_clock_task_labels();
-
-    lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
 
     if (ui_TaskDropdown) {
         lv_obj_add_event_cb(ui_TaskDropdown, ui_TaskDropdown_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
