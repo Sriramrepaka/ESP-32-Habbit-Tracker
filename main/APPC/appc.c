@@ -238,7 +238,6 @@ void appc_init(void) {
     lv_obj_add_event_cb(ui_NoteNameOkBtn, appc_note_save, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_NoteNameCancelBtn, appc_note_cancel, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_SketchViewDeleteBtn, appc_note_delete, LV_EVENT_CLICKED, NULL);
-    //lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
 
     lv_obj_add_event_cb(ui_CalPrev, appc_task_cal_prev, LV_EVENT_PRESSED, NULL);
     lv_obj_add_event_cb(ui_CalNext, appc_task_cal_next, LV_EVENT_PRESSED, NULL);

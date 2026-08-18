@@ -251,7 +251,7 @@ void ui_SetButton_event_cb(lv_event_t * e) {
     // Hide panels
     lv_obj_add_flag(ui_TaskTimeSet, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_TaskSelectPanel, LV_OBJ_FLAG_HIDDEN);
-    ESP_LOGI(TAG,"Task %d, Pomodoro %d, Hour %d, Minute %d, Paused %d, Rem Sec %lu",selected_idx,g_tasks[selected_idx].is_pomodoro,g_tasks[selected_idx].hour,g_tasks[selected_idx].minute,g_tasks[selected_idx].is_paused,g_tasks[selected_idx].remaining_sec);
+    ESP_LOGV(TAG,"Task %d, Pomodoro %d, Hour %d, Minute %d, Paused %d, Rem Sec %lu",selected_idx,g_tasks[selected_idx].is_pomodoro,g_tasks[selected_idx].hour,g_tasks[selected_idx].minute,g_tasks[selected_idx].is_paused,g_tasks[selected_idx].remaining_sec);
 }
 
 static void update_task_accumulated_label(uint8_t task_idx) {
@@ -326,7 +326,7 @@ static void task_label_long_press_cb(lv_event_t * e) {
         lv_obj_clear_flag(ui_TaskOnGoingPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_move_foreground(ui_TaskOnGoingPanel);
 
-        ESP_LOGI(TAG,"Task %d, Hour %d, Minute %d, Paused %d,remaining sec %lu",s_selected_task_index,task->hour,task->minute, task->is_paused, task->remaining_sec);
+        ESP_LOGV(TAG,"Task %d, Hour %d, Minute %d, Paused %d,remaining sec %lu",s_selected_task_index,task->hour,task->minute, task->is_paused, task->remaining_sec);
     }
 }
 
@@ -484,6 +484,9 @@ static void task_timer_cb(lv_timer_t * timer) {
 // Event when TaskOnGoingBtn is clicked to launch the task
 void ui_TaskOnGoingBtn_event_cb(lv_event_t * e) {
     if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+
+        if (s_task_timer != NULL) return;
+
         habit_task_t * task = &g_tasks[s_selected_task_index];
 
         // 1. Change the back button label from "Back" to "Break"
@@ -723,7 +726,6 @@ void toggle_task_and_save(int year, int month, int day, int task_num) {
         fwrite(current_month_tasks, sizeof(day_task_status_t), 31, f);
         fclose(f);
         ESP_LOGI(TAG,"Successfully saved task.....");
-        appc_render_calendar();
     }
     else{
         ESP_LOGI(TAG,"Failed to save task.....");
@@ -815,6 +817,8 @@ void appc_tasks_init(void) {
     appc_load_all_tasks();
 
     appc_setup_clock_task_labels();
+
+    lv_obj_add_event_cb(ui_Productivity_, productivity_screen_event_cb, LV_EVENT_ALL, NULL);
 
     if (ui_TaskDropdown) {
         lv_obj_add_event_cb(ui_TaskDropdown, ui_TaskDropdown_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
