@@ -1,8 +1,13 @@
 #include "BAT_Driver.h"
+#include "driver/gpio.h"
 
 const static char *ADC_TAG = "ADC";
 
 float BAT_analogVolts = 0;
+
+#define BAT_MIN_PRESENT_VOLTS  2.5f
+#define CHARGE_SENSE_GPIO  GPIO_NUM_4
+
 
 /*---------------------------------------------------------------
         ADC Calibration  
@@ -114,4 +119,51 @@ float BAT_Get_Volts(void)
         // printf("BAT voltage : %.2f V\r\n", BAT_analogVolts);
     }
     return BAT_analogVolts;
+}
+
+
+bool BAT_Is_Present(void) 
+{
+    float volts = BAT_Get_Volts();
+    
+    // If voltage is above the minimum threshold, a battery is connected
+    if (volts >= BAT_MIN_PRESENT_VOLTS) {
+        return true;
+    }
+    
+    return false;
+}
+
+uint8_t BAT_Get_Percentage(void) 
+{
+    float volts = BAT_Get_Volts();
+    
+    if (volts >= 4.2f) return 100;
+    if (volts <= 3.3f) return 0;
+    
+    // Simple linear approximation between 3.3V (0%) and 4.2V (100%)
+    uint8_t percentage = (uint8_t)(((volts - 3.3f) / (4.2f - 3.3f)) * 100.0f);
+    return percentage;
+}
+
+void BAT_Charge_Init(void) {
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << CHARGE_SENSE_GPIO),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE, // Adjust based on your charger chip
+    };
+    gpio_config(&io_conf);
+}
+
+bool BAT_Is_Charging(void) {
+    // Returns true if charger pin reads active (e.g., LOW for CHG pins, HIGH for VBUS)
+    return (gpio_get_level(CHARGE_SENSE_GPIO) == 0); 
+}
+
+bool BAT_Is_Charging_Heuristic(void) {
+    float volts = BAT_Get_Volts();
+    
+    // A singleLiPo resting cell rarely exceeds 4.20V on its own. 
+    // Voltages above 4.23V usually indicate active charging current.
+    return (volts > 4.23f); 
 }

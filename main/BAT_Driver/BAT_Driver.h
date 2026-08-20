@@ -19,3 +19,7 @@ extern float BAT_analogVolts;
 
 void BAT_Init(void);
 float BAT_Get_Volts(void);
+
+bool BAT_Is_Present(void);
+uint8_t BAT_Get_Percentage(void);
+bool BAT_Is_Charging(void);
