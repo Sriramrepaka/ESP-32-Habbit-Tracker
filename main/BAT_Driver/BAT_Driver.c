@@ -116,7 +116,7 @@ float BAT_Get_Volts(void)
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan3_handle, adc_raw[0][0], &voltage[0][0]));                    
         // printf("ADC%d Channel[%d] Cali Voltage: %d mV\r\n", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN, voltage[0][0]);                
         BAT_analogVolts = (float)(voltage[0][0] * 3.0 / 1000.0) / Measurement_offset;
-        // printf("BAT voltage : %.2f V\r\n", BAT_analogVolts);
+        printf("BAT voltage : %.2f V\r\n", BAT_analogVolts);
     }
     return BAT_analogVolts;
 }
